@@ -1,9 +1,8 @@
-
-default : build execute
-
 build : 
-	clang++ lex.cpp -Wall  -o bin/aclj
+	clang++ main.cpp lex.cpp -Wall --std=c++17 -g  -o aclj
 
-execute : 
-	bin/./aclj
+install : 
+	source init.sh	
 
+test   :
+	source test.sh

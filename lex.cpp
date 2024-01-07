@@ -1,105 +1,104 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
+#include "lex.h"
+#include <cctype>
+#include <string>
 
-enum class a_lexeme_kind { 
+// for reading next character. read one at a time. will also cache
 
-	lex_fn,
-	lex_identifier,
-	lex_takes,
-	lex_returns,
-	lex_int,
-	lex_lparen,
-	lex_rparen,
-};
-const char * lexeme_kinds[] = {"lex_fn", "lex_identifier" , "lex_takes", "lex_returns" , "lex_int" , "lex_paren" , "lex_rparen"};
-
-class a_token { 
-
-public: 
-	std::string lexeme;
-	a_lexeme_kind kind;
-
-};
-
-
-a_lexeme_kind get_lexeme_kind(const std::string lexeme)
+static char next()
 {
-	if ( lexeme == "fn" ) return a_lexeme_kind::lex_fn;
-	if ( lexeme == "takes") return a_lexeme_kind::lex_takes;
-	if ( lexeme == "returns") return a_lexeme_kind::lex_returns;
-	if ( lexeme == "int") return a_lexeme_kind::lex_int;
-	if ( lexeme == "{") return a_lexeme_kind::lex_lparen;
-	if ( lexeme == "}") return a_lexeme_kind::lex_rparen;
-	return a_lexeme_kind::lex_identifier;
-}
 
-std::vector<a_token> scan_source_code(const std::vector<uint8_t> source_code)
-{
-	std::vector<a_token> tokens;
-	size_t source_size = source_code.size();
-	if( source_size <= 0) { std::cerr << "Source is empty\n"; exit(0); }  
-	std::string temp;
-	a_token tok;
-	for(size_t i = 0; i < source_size; ++i)
-	{
-		std::cout<<i;
-		if ( source_code[i] == '/' && source_code[i+1] == '*' )
-		{
-			do
-			{ 
-				++i;
-			}	
-			while (source_code[i] != '/');
-			++i; // \n
-			
-		}
-		if ( source_code[i] ==  ' ' || source_code[i] ==  '\n' )
-		{
-			tok.lexeme = temp;
-			tok.kind   = get_lexeme_kind(temp);
-			tokens.push_back(tok);
-		}
-		else 
-		{
-			temp[i] = source_code[i];
-		}
-	}	
-	return tokens;
-}
-
-inline std::vector<uint8_t> read_vector_from_disk(std::string file_path)
-{
-   // Task 1.1 : Read from the file
-        std::ifstream source_file(file_path, std::ios::in | std::ios::binary);
+	if (cache)
+	{ 
+		char temp = cache;
+		cache = 0;
+		return temp;
+	}
 	
-   // Task 1.2 : Scan the source and save it
-	if(source_file.good())
-	{
-		std::vector<uint8_t> data((std::istreambuf_iterator<char>(source_file)), std::istreambuf_iterator<char>());
-		return data;
-	}
-	else
-	{
-		std::cerr<<"Not available";
-		exit(0);
-	}
+	return source_code[curr_pos++];  	
 }
 
+// for caching  character. 
 
-int main(int argc, char const *argv[])
+static void cache_char(char pb)
 {
-   
-        std::vector<uint8_t> source_code = read_vector_from_disk("test/test.my");
+	cache = pb;
+}
 
-        
-   // Task 1.4 : Tokenize and print tokens
-	std::vector<a_token> tokens = scan_source_code(source_code);
-/*	for(a_token tok : tokens)
-		std::cout<<"<"<<tok.lexeme<<","<<lexeme_kinds[(int)tok.kind]<<">"<<"\n";
-   // Task 1.3 : Print the program as it was in the file
-	for(char ch : source_code)
-		std::cout<< ch;
-*/
-       std::cout<<"\nNo of chars : "<<source_code.size();
+// for skipping whitespace character.
+
+static int skip(void)
+{
+	char c;
+
+	c = next();
+	while (' ' == c || '\t' == c || '\n' == c || '\r' == c || '\f' == c)
+	{
+		c = next();
+	}
+	return (c);
+}
+
+// for converting contigous number literals to an int or float
+static a_number scan_number(char c)
+{
+	char number[10];
+	a_number value;
+	char digit = c;
+	bool is_floating_point = false;
+	for(size_t i = 0;std::isdigit(digit) || digit == '.' ; ++i)
+	{ 
+		number[i] = digit;
+		if (digit == '.') { is_floating_point = true;}
+		digit = next();
+	}
+	cache_char(digit);
+
+	if ( is_floating_point) { value = std::stod(std::string(number)) ; } 
+	else { value = std::stoi(std::string(number)); }
+	
+	return value;
+
+}
+
+// for scanning the tokens
+
+bool scan(a_arith_token *tok)
+{
+	char c;
+	c = skip();
+	switch (c)
+	{
+		case EOF :
+				return false;
+		case '+' :
+				tok->kind = a_arith_kind::arith_plus;
+				break;
+ 		case '-' :
+				tok->kind = a_arith_kind::arith_minus;
+				break;
+		case '*' :
+				tok->kind = a_arith_kind::arith_mul;
+				break;
+		case '/' :
+				tok->kind = a_arith_kind::arith_div;
+				break;
+		case '0': case '1': case '2': case '3': case '4': 
+		case '5': case '6': case '7': case '8': case '9':
+			{
+				tok->literal_value = scan_number(c);
+				if(std::holds_alternative<double>(tok->literal_value)) 
+				{ 
+					tok->kind = a_arith_kind::arith_float_literal;
+					break;
+				}
+				if(std::holds_alternative<int>(tok->literal_value))
+				{
+					tok->kind = a_arith_kind::arith_int_literal;
+					break;
+				}
+			}
+		default :
+			tok->kind = a_arith_kind::arith_unknown;
+	}	
+	return true;
 }
