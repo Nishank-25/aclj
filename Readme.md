@@ -7,6 +7,5 @@ For now we just have basic lexical scanner for arithmetic tokens.
 
 ```c
 make build // to build the compiler
-make install // to export binaries
-make test // test the compiler
+./test.sh // to test the compiler
 ```

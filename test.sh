@@ -1,9 +1,12 @@
+TESTS="tests/*"
 
-for n in "tests/test*";
+for n in $TESTS;
 do
-	echo " File:"
-	cat $n
-	echo " Output: \n "
-	aclj $n
-	echo "\n\n"
+	printf "*************************************************\n"
+	printf "{$n}\n"
+	cat  "$n"
+	printf "\n"
+	printf "Output: \n"
+	./aclj $n
+	printf "*************************************************\n\n"
 done
