@@ -16,14 +16,14 @@ enum class a_arith_kind {
 
 using a_number = std::variant<int,double>;
 
-class a_arith_token {
-public:
+struct a_arith_token {
+
         a_arith_kind kind;
         a_number     literal_value;
 };
 
 extern std::vector<char> source_code;
-extern size_t curr_pos;
+extern std::size_t curr_pos;
 extern char cache;
 
 #endif /* LEX_H */
