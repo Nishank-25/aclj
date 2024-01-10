@@ -32,7 +32,7 @@ inline std::vector<char> read_vector_from_disk(std::string file_path)
 	}
 }
 
-char *tok_str[] = { "+", "-" , "*" , "/" , "int literal" , "float literal" , "unknown token"};
+const char *tok_str[] = { "+", "-" , "*" , "/" , "int literal" , "float literal" , "unknown token"};
 
 static inline void scan_file()
 {

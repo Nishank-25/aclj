@@ -23,7 +23,7 @@ public:
 };
 
 extern std::vector<char> source_code;
-extern size_t curr_pos;
+extern std::size_t curr_pos;
 extern char cache;
 
 #endif /* LEX_H */
