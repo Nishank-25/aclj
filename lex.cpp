@@ -1,7 +1,13 @@
 #include "lex.h"
 #include <cctype>
 #include <string>
+#include <iostream>
 
+std::vector<char> source_code;
+std::size_t curr_source_pos = 0;
+std::vector<a_token> Tokens;
+std::size_t curr_token_pos =  0;
+char cache;
 // for reading next character. read one at a time. will also cache
 
 static char next()
@@ -14,7 +20,7 @@ static char next()
 		return temp;
 	}
 	
-	return source_code[curr_pos++];  	
+	return source_code[curr_source_pos++];  	
 }
 
 // for caching  character. 
@@ -62,43 +68,51 @@ static a_number scan_number(char c)
 
 // for scanning the tokens
 
-bool scan(a_arith_token *tok)
+bool scan(a_token *tok)
 {
 	char c;
 	c = skip();
 	switch (c)
 	{
 		case EOF :
+				tok->kind = a_token_kind::tok_eof;
+				tok->value = std::monostate{};
 				return false;
 		case '+' :
-				tok->kind = a_arith_kind::arith_plus;
+				tok->kind = a_token_kind::tok_plus;
+				tok->value = std::monostate{};
 				break;
  		case '-' :
-				tok->kind = a_arith_kind::arith_minus;
+				tok->kind = a_token_kind::tok_minus;
+				tok->value = std::monostate{};
 				break;
 		case '*' :
-				tok->kind = a_arith_kind::arith_mul;
+				tok->kind = a_token_kind::tok_mul;
+				tok->value = std::monostate{};
 				break;
 		case '/' :
-				tok->kind = a_arith_kind::arith_div;
+				tok->kind = a_token_kind::tok_div;
+				tok->value = std::monostate{};
 				break;
+		
 		case '0': case '1': case '2': case '3': case '4': 
 		case '5': case '6': case '7': case '8': case '9':
 			{
-				tok->literal_value = scan_number(c);
-				if(std::holds_alternative<double>(tok->literal_value)) 
+				tok->value = scan_number(c);
+				if(std::holds_alternative<double>(tok->value)) 
 				{ 
-					tok->kind = a_arith_kind::arith_float_literal;
+					tok->kind = a_token_kind::tok_float_literal;
 					break;
 				}
-				if(std::holds_alternative<int>(tok->literal_value))
+				if(std::holds_alternative<int>(tok->value))
 				{
-					tok->kind = a_arith_kind::arith_int_literal;
+					tok->kind = a_token_kind::tok_int_literal;
 					break;
 				}
 			}
 		default :
-			tok->kind = a_arith_kind::arith_unknown;
+			std::cerr<<"I don't know how '"<<c<<"' fits here\n";
+			exit(1);
 	}	
 	return true;
 }

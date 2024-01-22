@@ -1,13 +1,13 @@
 #include <iostream>
 #include <fstream>
 #include "lex.h"
+#include "tree.h"
+#include "helper.h"
 
 /***** GLOBALS *****/ 
 
-extern bool scan(a_arith_token*);
-std::vector<char> source_code;
-size_t curr_pos = 0;
-char cache;
+extern a_ast_node* parse_expr();
+extern a_number interpret_ast(a_ast_node*);
 
 /***** GLOBALS *****/ 
 
@@ -27,39 +27,42 @@ inline std::vector<char> read_vector_from_disk(std::string file_path)
 	}
 	else
 	{
-		std::cerr<<"Not available";
+		std::cerr<<"Input file not good";
 		exit(0);
 	}
-}
-
-const char *tok_str[] = { "+", "-" , "*" , "/" , "int literal" , "float literal" , "unknown token"};
-
-static inline void scan_file()
-{
-	a_arith_token tok;
-	while(scan(&tok))
-	{
-		std::cout<<"Token: "<<"{"<< tok_str[(int)tok.kind]<<"}";
-		std::cout<<", value : ";
-		if ( tok.kind == a_arith_kind::arith_int_literal)
-		{
-			std::cout<<std::get<int>(tok.literal_value);
-		}
-		if ( tok.kind == a_arith_kind::arith_float_literal)
-		{
-			std::cout<<std::get<double>(tok.literal_value);
-		}
-		std::cout<<"\n";
-
-	}
-
 }
 
 
 int main(int argc, char const *argv[])
 {
 //	init();
-        source_code = read_vector_from_disk(argv[1]);
-	scan_file();
-        
+	a_token tok;
+        a_ast_node* ast;
+	scan_cmd_line(argc,argv);
+	if(input_file.empty()) { std::cerr<<"Whom do I compile??\n"; exit(1);} 
+	source_code = read_vector_from_disk(input_file);
+	
+	// Tokenize 
+	while(scan(&tok))
+	{
+		Tokens.push_back(tok);
+	}
+	
+	if(tok.kind == a_token_kind::tok_eof) { Tokens.push_back(tok); }	
+	
+	// Parse ( build the ast)
+	ast = parse_expr();
+	
+	// interpret ( understand the ast)
+	auto result = interpret_ast(ast);
+	
+	if(std::holds_alternative<int>(result))
+		std::cout<<"Obviously wrong Result: "<<std::get<int>(result)<<"\n\n";
+	if(std::holds_alternative<double>(result))
+		std::cout<<"Obviously wrong Result: "<<std::get<double>(result)<<"\n\n";
+	
+	if( print[PRINT_TOKENS] == 1 ) { std::cout<<"Tokens\n"; print_tokens(); }
+	if( print[PRINT_AST_WITHOUT_PRECEDENCE] == 1 ) { print_ast(ast); }
+
+        return 0;
 }

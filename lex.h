@@ -4,26 +4,32 @@
 #include <vector>
 #include <variant>
 
-enum class a_arith_kind {
-        arith_plus,
-        arith_minus,
-        arith_mul,
-        arith_div,
-        arith_int_literal,
-	arith_float_literal,
-	arith_unknown
+enum class a_token_kind {
+        tok_plus,
+        tok_minus,
+        tok_mul,
+        tok_div,
+        tok_int_literal,
+	tok_float_literal,
+	tok_eof,
+	tok_unknown
 };
 
-using a_number = std::variant<int,double>;
+using a_number = std::variant<std::monostate,int,double>;
 
-struct a_arith_token {
-
-        a_arith_kind kind;
-        a_number     literal_value;
+struct a_token {
+        a_token_kind kind;
+        a_number     value;
 };
+
+
+extern bool scan(a_token*);
 
 extern std::vector<char> source_code;
-extern std::size_t curr_pos;
+extern std::size_t curr_source_pos;
+extern std::vector<a_token> Tokens;
+extern std::size_t curr_token_pos;
 extern char cache;
+
 
 #endif /* LEX_H */
