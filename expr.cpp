@@ -1,18 +1,23 @@
 #include "tree.h"
+#include "lex.h"
 #include <iostream>
+
 /*
 ***** Grammar START *****
 
-expression: number
-          | expression '*' expression
-          | expression '/' expression
-          | expression '+' expression
-          | expression '-' expression
-          ;
+expression: 	term
+		| expression + term
+		| expression - term
 
-primary:    a_tok_int_literal
-	  |
-         ;
+term :  	primary
+		| term * term
+		| term / term 
+
+primary:    	a_number
+         	;
+
+a_number	a_tok_int_literal
+		| a_tok_float_literal
 
 ***** Grammar END *****
 */
@@ -57,26 +62,89 @@ a_ast_node* primary()
 	}	
 }
 
-a_ast_node* parse_expr()
+a_ast_node* term()
 {
-	a_ast_node *left ,*right ,*node; 
-	a_ast_node_kind kind; 
+	a_ast_node *left_operand , *right_operand;
+	a_ast_node_kind op;
 	
-	/* parse the primary ( left subtree)  */
-	left = primary();
+	left_operand  = primary();
+	
+	if(Tokens[curr_token_pos].kind == a_token_kind::tok_eof)
+		return left_operand;	
+	
+	switch(Tokens[curr_token_pos].kind)
+	{
+		case a_token_kind::tok_mul:
+		case a_token_kind::tok_div:
+			{
+				op = tok_to_node(Tokens[curr_token_pos].kind);
+				
+				curr_token_pos++;
+				right_operand = primary();
+				left_operand  = mk_node(op,left_operand,right_operand,std::monostate{});
+				
+				if(Tokens[curr_token_pos].kind == a_token_kind::tok_eof)
+					return left_operand;
+		
+				switch(Tokens[curr_token_pos].kind)
+				{
+					case a_token_kind::tok_mul:
+					case a_token_kind::tok_div:
+						{
+							op = tok_to_node(Tokens[curr_token_pos].kind);
+							curr_token_pos++;
+							right_operand = term();
+							left_operand = mk_node(op,left_operand,right_operand,std::monostate{});
+							return left_operand;
+						}
+					case a_token_kind::tok_plus:
+					case a_token_kind::tok_minus:
+						{
+							return left_operand;
+						}
+					default:
+						std::cerr<<"Wrong opeartor for a term\n";
+				
+				}
+				
+			}
+		case a_token_kind::tok_plus:
+		case a_token_kind::tok_minus:
+			{
+
+				return left_operand;
+			}
+		default:
+			std::cerr<<"Wrong operator for a term\n";
+			exit(1);
+	}
+
+	
+}
+
+//1 + 2*3 - 4/5 + 6*7*8 +9/10/11 + 12
+a_ast_node* expr()
+{
+	a_ast_node *left_expr ,*right_term;
+	a_ast_node_kind expr_kind; 
+	
+	/* parse the expr ( left subtree)  */
+	left_expr = term();
 	
 	/* if last token, return  */
-	if(Tokens[curr_token_pos].kind == a_token_kind::tok_eof)
-	       return left;
+	while ( Tokens[curr_token_pos].kind != a_token_kind::tok_eof )
+	{
+		
+	expr_kind = tok_to_node(Tokens[curr_token_pos].kind);
+	curr_token_pos++;
 	
-	/* convert token operation to node operation */
-	kind = tok_to_node(Tokens[curr_token_pos++].kind);
+	/* this will only return when it hits with lower precedence  with higher precedence already formed */
+	right_term = term();
+        
+	/* add it to the left expression */	
+	left_expr  = mk_node(expr_kind,left_expr,right_term,std::monostate{});
 	
-	/* parse the right subtree */
-	right = parse_expr();
-
-	/* make the node */
-	node  = mk_node(kind, left, right, 0);
-	return node;
+	}
+	return left_expr;
 
 }

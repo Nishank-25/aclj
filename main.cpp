@@ -6,7 +6,7 @@
 
 /***** GLOBALS *****/ 
 
-extern a_ast_node* parse_expr();
+extern a_ast_node* expr();
 extern a_number interpret_ast(a_ast_node*);
 
 /***** GLOBALS *****/ 
@@ -51,15 +51,15 @@ int main(int argc, char const *argv[])
 	if(tok.kind == a_token_kind::tok_eof) { Tokens.push_back(tok); }	
 	
 	// Parse ( build the ast)
-	ast = parse_expr();
+	ast = expr();
 	
 	// interpret ( understand the ast)
 	auto result = interpret_ast(ast);
 	
 	if(std::holds_alternative<int>(result))
-		std::cout<<"Obviously wrong Result: "<<std::get<int>(result)<<"\n\n";
+		std::cout<<"Result: "<<std::get<int>(result)<<"\n\n";
 	if(std::holds_alternative<double>(result))
-		std::cout<<"Obviously wrong Result: "<<std::get<double>(result)<<"\n\n";
+		std::cout<<"Result: "<<std::get<double>(result)<<"\n\n";
 	
 	if( print[PRINT_TOKENS] == 1 ) { std::cout<<"Tokens\n"; print_tokens(); }
 	if( print[PRINT_AST_WITHOUT_PRECEDENCE] == 1 ) { print_ast(ast); }

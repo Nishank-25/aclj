@@ -28,20 +28,7 @@ void print_tokens()
 	std::cout<<"\n";
 }
 
-const char *op_str[] = { "+", "-", "*" , "/"};
-
-
-/*   
- *      +
-       / \
-1111112   * 
-         / \
-232321223   -
-           / \
-          5   /
-             / \
-            8   3
-*/         
+static const char *op_str[] = { "+", "-", "*" , "/"};
 
 int left_spaces =  14;
 int edge_spaces =  left_spaces + 1;
@@ -49,6 +36,7 @@ int parent_space = left_spaces + 2;
 bool parent_node = true;
 
 std::string spaces(int num) { return std::string(num,' '); } 
+
 
 int print_ast(a_ast_node* ast)
 {
