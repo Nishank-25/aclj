@@ -65,61 +65,26 @@ a_ast_node* primary()
 a_ast_node* term()
 {
 	a_ast_node *left_operand , *right_operand;
-	a_ast_node_kind op;
+	a_token_kind tok_kind;
 	
 	left_operand  = primary();
 	
-	if(Tokens[curr_token_pos].kind == a_token_kind::tok_eof)
+	tok_kind = Tokens[curr_token_pos].kind;
+	if(tok_kind  == a_token_kind::tok_eof)
 		return left_operand;	
-	
-	switch(Tokens[curr_token_pos].kind)
-	{
-		case a_token_kind::tok_mul:
-		case a_token_kind::tok_div:
-			{
-				op = tok_to_node(Tokens[curr_token_pos].kind);
-				
-				curr_token_pos++;
-				right_operand = primary();
-				left_operand  = mk_node(op,left_operand,right_operand,std::monostate{});
-				
-				if(Tokens[curr_token_pos].kind == a_token_kind::tok_eof)
-					return left_operand;
 		
-				switch(Tokens[curr_token_pos].kind)
-				{
-					case a_token_kind::tok_mul:
-					case a_token_kind::tok_div:
-						{
-							op = tok_to_node(Tokens[curr_token_pos].kind);
-							curr_token_pos++;
-							right_operand = term();
-							left_operand = mk_node(op,left_operand,right_operand,std::monostate{});
-							return left_operand;
-						}
-					case a_token_kind::tok_plus:
-					case a_token_kind::tok_minus:
-						{
-							return left_operand;
-						}
-					default:
-						std::cerr<<"Wrong opeartor for a term\n";
-				
-				}
-				
-			}
-		case a_token_kind::tok_plus:
-		case a_token_kind::tok_minus:
-			{
-
-				return left_operand;
-			}
-		default:
-			std::cerr<<"Wrong operator for a term\n";
-			exit(1);
-	}
-
-	
+	while(tok_kind == a_token_kind::tok_mul || tok_kind == a_token_kind::tok_div)
+		{
+			curr_token_pos++;
+			
+			right_operand = primary();
+			left_operand  = mk_node(tok_to_node(tok_kind),left_operand,right_operand,std::monostate{});
+		        
+			tok_kind = Tokens[curr_token_pos].kind;
+			if(tok_kind == a_token_kind::tok_eof)
+				break;
+		}
+	return left_operand;
 }
 
 //1 + 2*3 - 4/5 + 6*7*8 +9/10/11 + 12
