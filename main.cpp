@@ -7,6 +7,7 @@
 /***** GLOBALS *****/ 
 
 extern a_ast_node* expr();
+extern a_ast_node* expr(int);
 extern a_number interpret_ast(a_ast_node*);
 
 /***** GLOBALS *****/ 
@@ -51,7 +52,7 @@ int main(int argc, char const *argv[])
 	if(tok.kind == a_token_kind::tok_eof) { Tokens.push_back(tok); }	
 	
 	// Parse ( build the ast)
-	ast = expr();
+	ast = expr(0);
 	
 	// interpret ( understand the ast)
 	auto result = interpret_ast(ast);

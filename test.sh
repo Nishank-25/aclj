@@ -6,7 +6,6 @@ do
 	printf "{$n}\n"
 	cat  "$n"
 	printf "\n"
-	printf "Output: \n"
 	./aclj $n "$@"
 	printf "*************************************************\n\n"
 done
