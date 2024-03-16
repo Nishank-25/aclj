@@ -1,27 +1,38 @@
-1 program basic compiler(acwj)
-  1.1 Lexer Done
-  1.2 Scanner 
-       1.2.1  (wrong precedence) D
-       1.2.2  (correct precedence with changing grammar) D
-       1.2.3  (correct precedence with Pratt parsing) D
-  1.3 Codegen
-      1.3.1  Basic codegen(match nodes with instructions, no floating point support) D
-      1.3.2  Basic codegen(floating point support)
-  1.4 Utils
-      1.4.1 CMDLINE Options
-            1.4.1.1 Basic support for print flags D
-            1.4.1.2 Error on incorrect flags and make sure you take correct input file D
-            1.4.1.3 Option for interpret or codegen
-                    1.4.1.3 In codegen option for -S and -o compiler option
-      1.4.2 Helper Functions
-            1.4.2.1 
+1. program basic compiler([acwj](https://github.com/DoctorWkt/acwj/ "a compiler writing journey") inspired)
+   1. Lexer
+        - [X] 1. Scan arithmetic tokens(+,-,*,/)
+        - [X] 2. Scan integral and floating point numbers
+        - [ ] 3. Scan statements
+   2. Scanner
+        - [X] 1. wrong precedence
+        - [X] 2. correct precedence with changing grammar
+        - [X] 3. correct precedence with Pratt parsing
+   3. Codegen
+         - [X] 1. match nodes with instructions(naive)
+         - [ ] 2. floating point support
+   4. Error Handling
+       1. Lex error
+          - [X] 1. error on wrong tokens
+       2. Syntax error
+          - [X] 1. error on not following grammar
+       3. Source/Location pointing
+          - [ ] 1. line number support   
+   4. Utils
+       1. CMDLINE Options
+          - [X] 1. Basic support for print flags
+          - [X] 2. Error on incorrect flags and make sure you take correct input file
+          - [ ] 3. interpret or codegen(default)
+          - [ ] 4. -S and -o flags
+      2. Helper Functions
+          - [X] 1. Print tokens
+          - [X] 2. Print ast(without precedence)
 
-2 add advance techniques
+2. add advance techniques
 
-3 testing and build
-  3.1 build file
-      3.1.1 Basic build file D
-      3.1.2 Basic cmake support D
-  3.2 test
-      3.2.1 Basic test script D
-      3.2.2 Add support for user args D
+3. testing and build
+   1. build file
+       - [X] 1. Basic build file
+       - [X] 2. Basic cmake support
+   2. test
+       - [X] 1. Basic test script
+       - [X] 2. user args
