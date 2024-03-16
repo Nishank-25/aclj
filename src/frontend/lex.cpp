@@ -1,4 +1,4 @@
-#include "lex.h"
+#include "frontend/lex.h"
 #include <cctype>
 #include <string>
 #include <iostream>

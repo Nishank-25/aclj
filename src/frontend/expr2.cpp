@@ -1,5 +1,5 @@
-#include "tree.h"
-#include "lex.h"
+#include "frontend/tree.h"
+#include "frontend/lex.h"
 #include <iostream>
 
 /*

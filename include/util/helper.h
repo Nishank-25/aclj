@@ -1,5 +1,5 @@
-#include "lex.h"
-#include "tree.h"
+#include "frontend/lex.h"
+#include "frontend/tree.h"
 #include <string>
 
 

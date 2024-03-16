@@ -1,7 +1,7 @@
 #ifndef TREE_H
 #define TREE_H
 
-#include "lex.h"
+#include "frontend/lex.h"
 
 
 // AST NODE KINDS

@@ -1,7 +1,7 @@
 /* Pratt parsing for operator precedence */
 
-#include"tree.h"
-#include"lex.h"
+#include"frontend/tree.h"
+#include"frontend/lex.h"
 #include<iostream>
 
 a_ast_node_kind tok_to_node(a_token_kind kind);

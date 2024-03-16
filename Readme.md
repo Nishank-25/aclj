@@ -7,7 +7,7 @@ the arithmetic expressions.
 # Build and default Test
 
 ```c
-make build // to build the compiler
+cmake ./  && make // to build the compiler
 ./test.sh // to test the compiler ( you can pass args)
 ```
 
