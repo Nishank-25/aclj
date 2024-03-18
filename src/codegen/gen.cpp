@@ -32,7 +32,7 @@ static int genAST(a_ast_node *n)
 		case a_ast_node_kind::node_div:
 			return (cgdiv(leftreg,rightreg));
 		case a_ast_node_kind::node_int_literal:
-			return (cgload(get<int>(n->value)));
+			return (cgload(std::get<int>(std::get<a_number>(n->value))));
 		default:
 			std::cerr<< "Unknown AST operator\n ";
 			exit(1);

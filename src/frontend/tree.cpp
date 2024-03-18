@@ -1,6 +1,6 @@
 #include "frontend/tree.h"
 #include <iostream>
-a_ast_node* mk_node(a_ast_node_kind op , a_ast_node* left , a_ast_node* right , a_number value)
+a_ast_node* mk_node(a_ast_node_kind op , a_ast_node* left , a_ast_node* right , a_ast_value value)
 {
 	a_ast_node*  node;
 
@@ -19,11 +19,11 @@ a_ast_node* mk_node(a_ast_node_kind op , a_ast_node* left , a_ast_node* right , 
 	return node;
 }
 
-a_ast_node* mk_leaf_node(a_ast_node_kind op , a_number value) {
+a_ast_node* mk_leaf_node(a_ast_node_kind op , a_ast_value value) {
 	return mk_node(op,nullptr,nullptr,value);
 }
 
-a_ast_node* mk_unary_node(a_ast_node_kind op, a_ast_node* left, a_number value){
+a_ast_node* mk_unary_node(a_ast_node_kind op, a_ast_node* left, a_ast_value value){
 	return mk_node(op,left,nullptr,value);
 }
 

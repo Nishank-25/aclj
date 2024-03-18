@@ -15,12 +15,12 @@ void print_tokens()
                 if ( tok.kind == a_token_kind::tok_int_literal)
                 {
 			std::cout<<", value : ";
-                        std::cout<<std::get<int>(tok.value);
+                        std::cout<<std::get<int>(std::get<a_number>((tok.value)));
                 }
                 if ( tok.kind == a_token_kind::tok_float_literal)
                 {
                         std::cout<<", value : ";
-			std::cout<<std::get<double>(tok.value);
+			std::cout<<std::get<double>(std::get<a_number>((tok.value)));
                 }
                 std::cout<<"\n";
 
@@ -43,10 +43,10 @@ int print_ast(a_ast_node* ast)
 	// last right child (base case)
 	if (ast->left  == nullptr || ast->right == nullptr) 
 	{
-		if(std::holds_alternative<int>(ast->value))
- 		std::cout<<spaces(3)<<std::get<int>(ast->value)<<"\n";
-		if(std::holds_alternative<double>(ast->value))
-                std::cout<<spaces(3)<<std::get<double>(ast->value)<<"\n";
+		if(ast->op == a_ast_node_kind::node_int_literal)
+ 		std::cout<<spaces(3)<<std::get<int>(std::get<a_number>(ast->value))<<"\n";
+		if(ast->op == a_ast_node_kind::node_float_literal)
+                std::cout<<spaces(3)<<std::get<double>(std::get<a_number>(ast->value))<<"\n";
 		std::cout<<"\n";
 	       	return 0; 
 	
@@ -54,11 +54,11 @@ int print_ast(a_ast_node* ast)
 
 	// print parent node or right child
  	int num_of_digits = 1;
-	if(std::holds_alternative<int>(ast->left->value))
-		num_of_digits = std::to_string(std::get<int>(ast->left->value)).size();
-	if(std::holds_alternative<double>(ast->left->value))
+	if(ast->left->op == a_ast_node_kind::node_int_literal)
+		num_of_digits = std::to_string(std::get<int>(std::get<a_number>((ast->left->value)))).size();
+	if(ast->left->op == a_ast_node_kind::node_float_literal)
 	{
-		std::string num = std::to_string(std::get<double>(ast->left->value));
+		std::string num = std::to_string(std::get<double>(std::get<a_number>((ast->left->value))));
 		std::size_t size = num.size();
 		std::size_t i = 0;
 		while (num[i] != '.') { ++i; }
@@ -79,10 +79,10 @@ int print_ast(a_ast_node* ast)
 	
 	// print left child
 	std::cout<<std::setprecision(10);
-	if(std::holds_alternative<int>(ast->left->value)) 
-		std::cout<<spaces(left_spaces - num_of_digits + 1)<<std::get<int>(ast->left->value);
-	if(std::holds_alternative<double>(ast->left->value))
-		std::cout<<spaces(left_spaces - num_of_digits + 1)<<std::get<double>(ast->left->value);
+	if(ast->left->op == a_ast_node_kind::node_int_literal) 
+		std::cout<<spaces(left_spaces - num_of_digits + 1)<<std::get<int>(std::get<a_number>((ast->left->value)));
+	if(ast->left->op == a_ast_node_kind::node_float_literal)
+		std::cout<<spaces(left_spaces - num_of_digits + 1)<<std::get<double>(std::get<a_number>((ast->left->value)));
 	left_spaces += 2;
 	
 	// print right sub tree

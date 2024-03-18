@@ -45,11 +45,11 @@ static int skip(void)
 }
 
 // for converting contigous number literals to an int or float
-static a_number scan_number(char c)
+static a_number scan_number()
 {
 	char number[10];
 	a_number value;
-	char digit = c;
+	char digit = next();
 	bool is_floating_point = false;
 	for(size_t i = 0;std::isdigit(digit) || digit == '.' ; ++i)
 	{ 
@@ -65,6 +65,7 @@ static a_number scan_number(char c)
 	return value;
 
 }
+
 
 // for scanning the tokens
 
@@ -98,13 +99,15 @@ bool scan(a_token *tok)
 		case '0': case '1': case '2': case '3': case '4': 
 		case '5': case '6': case '7': case '8': case '9':
 			{
-				tok->value = scan_number(c);
-				if(std::holds_alternative<double>(tok->value)) 
+				cache_char(c);
+				a_number num = scan_number();
+				tok->value = num; 
+				if(std::holds_alternative<double>(num)) 
 				{ 
 					tok->kind = a_token_kind::tok_float_literal;
 					break;
 				}
-				if(std::holds_alternative<int>(tok->value))
+				if(std::holds_alternative<int>(num))
 				{
 					tok->kind = a_token_kind::tok_int_literal;
 					break;

@@ -80,7 +80,7 @@ a_number interpret_ast(a_ast_node* ast)
 			return (leftval / rightval);
 		case a_ast_node_kind::node_int_literal:
 		case a_ast_node_kind::node_float_literal:
-			return ast->value;
+			return std::get<a_number>(ast->value);
 		default:
 			std::cerr<<"Unkown operator\n";
 			exit(1);

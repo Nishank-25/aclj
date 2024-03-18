@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <variant>
+#include <string>
 
 enum class a_token_kind {
         tok_plus,
@@ -15,11 +16,13 @@ enum class a_token_kind {
 	tok_unknown
 };
 
-using a_number = std::variant<std::monostate,int,double>;
+using a_number         = std::variant<int,double>;
+using variable_values  = std::variant<std::monostate,a_number,std::string>;
+using a_token_value    = variable_values;
 
 struct a_token {
-        a_token_kind kind;
-        a_number     value;
+        a_token_kind     kind;
+        a_token_value    value;
 };
 
 
