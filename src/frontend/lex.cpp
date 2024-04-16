@@ -7,9 +7,23 @@ std::vector<char> source_code;
 std::size_t curr_source_pos = 0;
 std::vector<a_token> Tokens;
 std::size_t curr_token_pos =  0;
+a_token curr_token;
 char cache;
-// for reading next character. read one at a time. will also cache
 
+
+//
+a_token get_token()
+{
+	return Tokens[curr_token_pos];
+}
+
+void next_token()
+{
+	++curr_token_pos;
+	curr_token = Tokens[curr_token_pos];
+}
+
+// for reading next character. read one at a time. will also cache
 static char next()
 {
 
@@ -44,6 +58,8 @@ static int skip(void)
 	return (c);
 }
 
+#define is_whitespace(c) (' ' == c || '\t' == c || '\n' == c || '\r' == c || '\f' == c ) 
+
 // for converting contigous number literals to an int or float
 static a_number scan_number()
 {
@@ -66,12 +82,40 @@ static a_number scan_number()
 
 }
 
+// for now we only have "print" which is a keyword
+// print arithematic expression
+// ex : print 1 + 2
+static void scan_identifier( an_ident& id )
+{
+	char c = next();
+	char buf[6];
+	size_t i = 0;
+
+	// combination of alphabets, digits, and underscore
+	for(; std::isalnum(c) || c == '_'; ++i ) 
+	{
+		if( i > ( MAX_IDENT_LEN - 1) )
+		{
+			std::cerr<<"Identifier too long\n";
+			exit(1);
+		}
+		else
+		{
+			buf[i] = c;
+			c = next();
+		}
+	}
+	buf[++i] = '\0';	
+	cache_char(c);
+	id = std::string(buf);
+}
 
 // for scanning the tokens
 
 bool scan(a_token *tok)
 {
 	char c;
+
 	c = skip();
 	switch (c)
 	{
@@ -101,7 +145,13 @@ bool scan(a_token *tok)
 			{
 				cache_char(c);
 				a_number num = scan_number();
-				tok->value = num; 
+				tok->value = num;
+			        if ( !is_whitespace(next()) )
+				{
+					std::cerr<< "Not a number literal\n";
+					exit(1);
+				}
+				
 				if(std::holds_alternative<double>(num)) 
 				{ 
 					tok->kind = a_token_kind::tok_float_literal;
@@ -113,9 +163,36 @@ bool scan(a_token *tok)
 					break;
 				}
 			}
+		case ';':
+				tok->kind = a_token_kind::tok_semicolon;
+				tok->value = std::monostate{};
+				break;
 		default :
-			std::cerr<<"I don't know how '"<<c<<"' fits here\n";
-			exit(1);
+			{
+				if(std::isalpha(c) || c == '_')
+				{
+					an_ident id;
+					cache_char(c);
+					scan_identifier(id);
+					if( id == std::string{"print"}  )
+					{
+						tok->kind  = a_token_kind::tok_print;
+						tok->value = std::monostate{}; 
+						break;
+					}
+					else
+					{
+						std::cerr<<"Unrecognized symbol: "<<id<<" \n Be patient I will add you favourite keywords\n";
+						exit(1);
+
+					}
+				}
+				else
+				{
+					std::cerr<<"I don't know how '"<<c<<"' fits here\n";
+					exit(1);
+				}
+			}
 	}	
 	return true;
 }

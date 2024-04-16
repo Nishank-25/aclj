@@ -3,13 +3,13 @@
 #include "frontend/lex.h"
 #include "frontend/tree.h"
 #include "util/helper.h"
+#include "codegen/gen.h"
 
 /***** GLOBALS *****/ 
 
-extern a_ast_node* expr();
-extern a_ast_node* expr(int);
 extern a_number interpret_ast(a_ast_node*);
-extern void generatecode(a_ast_node*);
+extern void statements();
+
 std::ofstream asm_file{"out.s"};
 
 /***** GLOBALS *****/ 
@@ -40,7 +40,6 @@ int main(int argc, char const *argv[])
 {
 //	init();
 	a_token tok;
-        a_ast_node* ast;
 	scan_cmd_line(argc,argv);
 	/* Todo: where should input_file come from. Hmm... util??  */
 	if(input_file.empty()) { std::cerr<<"Whom do I compile??\n"; exit(1);} 
@@ -54,14 +53,12 @@ int main(int argc, char const *argv[])
 	
 	if(tok.kind == a_token_kind::tok_eof) { Tokens.push_back(tok); }	
 	
-	// Parse ( build the ast)
-	ast = expr(0);
-	
-
-	generatecode(ast);
+	gen_prologue();
+	statements();
+	gen_epilogue();
 	asm_file.close();
-	
-	// interpret ( understand the ast)
+
+/*	// interpret ( understand the ast)
 	auto result = interpret_ast(ast);
 	
 	if(std::holds_alternative<int>(result))
@@ -71,6 +68,6 @@ int main(int argc, char const *argv[])
 	
 	if( print[PRINT_TOKENS] == 1 ) { std::cout<<"Tokens\n"; print_tokens(); }
 	if( print[PRINT_AST_WITHOUT_PRECEDENCE] == 1 ) { print_ast(ast); }
-
+*/
         return 0;
 }

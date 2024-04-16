@@ -1,26 +1,17 @@
 #include "frontend/tree.h"
 #include "frontend/lex.h"
+#include "codegen/gen.h"
 #include <iostream>
 
 
-/* Todo: Common you can do better */
-void prologue();
-void epilogue();
-void cgprintint(int);
-int  cgload(int);
-int  cgadd(int , int);
-int  cgsub(int , int);
-int  cgmul(int , int);
-int  cgdiv(int , int);
-
-static int genAST(a_ast_node *n)
+int gen_AST(a_ast_node *n)
 {
 	int leftreg, rightreg;
 	// Get the left and right sub-tree values
 	if (n->left)
-		leftreg = genAST(n->left);
+		leftreg = gen_AST(n->left);
 	if (n->right)
-		rightreg = genAST(n->right);
+		rightreg = gen_AST(n->right);
 
 	switch (n->op) {
 		case a_ast_node_kind::node_add:
@@ -37,13 +28,4 @@ static int genAST(a_ast_node *n)
 			std::cerr<< "Unknown AST operator\n ";
 			exit(1);
 	}
-}
-
-void generatecode(a_ast_node *n)
-{
-	int reg;
-	prologue();
-	reg = genAST(n);
-	cgprintint(reg);
-	epilogue();
 }

@@ -5,7 +5,7 @@
 int print[5];
 std::string input_file;
 
-const char *tok_str[] = { "+", "-" , "*" , "/" , "int literal" , "float literal" ,"End of File", "unknown token"};
+const char *tok_str[] = { "+", "-" , "*" , "/" , "int literal" , "float literal", "print", "semicolon" ,"End of File", "unknown token"};
 void print_tokens()
 {
         a_token tok;

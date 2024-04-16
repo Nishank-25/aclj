@@ -27,26 +27,25 @@ int get_precedence(a_token_kind tok_kind)
 a_ast_node* expr(int precedence)
 {
 	a_ast_node *left, *right;
-	a_token_kind tok_kind;
 
 	left = primary();
-	tok_kind = Tokens[curr_token_pos].kind;
-	if(tok_kind == a_token_kind::tok_eof)
+	a_token_kind token_kind = get_token().kind;
+	if(token_kind == a_token_kind::tok_semicolon)
 		return left;
 
-	while(get_precedence(tok_kind) > precedence)
+	while(get_precedence(token_kind) > precedence)
 	{
-		curr_token_pos++;
+		next_token();
 		
 		// bind to the operator with same precedence level as left
-		right = expr(precedence_tbl[(int)tok_kind]);
+		right = expr(precedence_tbl[(int)token_kind]);
 
 		// join it to left
-		left = mk_node(tok_to_node(tok_kind),left,right,std::monostate{});
+		left = mk_node(tok_to_node(token_kind),left,right,std::monostate{});
 		
-		// If no tokens left, return just the left node
-		tok_kind = Tokens[curr_token_pos].kind;
-		if(tok_kind == a_token_kind::tok_eof)
+		// If  we hit a semicolon, return the  left node
+		token_kind = get_token().kind;
+		if(token_kind == a_token_kind::tok_semicolon)
 			return left;
 
 	}

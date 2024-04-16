@@ -8,7 +8,7 @@ extern std::ofstream asm_file;
 // List of available registers
 // and their names
 static int freereg[4];
-static char *reglist[4]= { "%r8", "%r9", "%r10", "%r11" };
+static std::string reglist[4]= { "%r8", "%r9", "%r10", "%r11" };
 
 // Set all registers as available
 static void freeall_registers(void)
@@ -42,7 +42,7 @@ static void free_register(int reg)
 }
 
 // Print out the assembly prologue
-void prologue()
+void cgprologue()
 {
 	freeall_registers();
 	asm_file<<
@@ -71,7 +71,7 @@ void prologue()
 }
 
 // Print out the assembly epilogue
-void epilogue()
+void cgepilogue()
 {
 	asm_file<<
 		"\tmovl	$0, %eax\n"
@@ -132,3 +132,8 @@ void cgprintint(int r) {
 	asm_file<<"\tcall\tprintint\n";
 	free_register(r);
 }
+
+void gen_prologue()        { cgprologue(); }
+void gen_epilogue()        { cgepilogue(); }
+void gen_free_regs()        { freeall_registers(); }
+void gen_printint(int reg) { cgprintint(reg); }

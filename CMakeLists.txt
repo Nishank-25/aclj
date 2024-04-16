@@ -5,6 +5,11 @@ project(aclj)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(
+  CMAKE_CXX_FLAGS
+  "${CMAKE_CXX_FLAGS} -g  -W -Wall -pedantic"
+)
+
 # Directories
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -18,9 +23,9 @@ include_directories(${INCLUDE_DIR})
 # Add executable
 add_executable(aclj ${SRCS})
 
+
 # Set output directory for executable
 set_target_properties(aclj  PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-add_compile_options(-Wall -g)

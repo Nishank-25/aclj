@@ -8,16 +8,19 @@
 expression: 	term
 		| expression + term
 		| expression - term
+		;
 
 term :  	primary
 		| term * term
 		| term / term 
+		;
 
 primary:    	a_number
          	;
 
 a_number	a_tok_int_literal
 		| a_tok_float_literal
+		;
 
 ***** Grammar END *****
 */
@@ -45,15 +48,18 @@ a_ast_node* primary()
 {
 	a_ast_node* node;
 	a_token tok;
-	tok = Tokens[curr_token_pos++];
+	
+	tok = get_token();
 	
 	switch(tok.kind)
 	{
 		case a_token_kind::tok_int_literal :
 			node = mk_leaf_node(a_ast_node_kind::node_int_literal, tok.value);
+			next_token();
 			return node;
 		case a_token_kind::tok_float_literal :
 			node = mk_leaf_node(a_ast_node_kind::node_float_literal,tok.value);
+			next_token();
 			return node;
 		
 		default:
@@ -69,19 +75,17 @@ a_ast_node* term()
 	
 	left_operand  = primary();
 	
-	tok_kind = Tokens[curr_token_pos].kind;
-	if(tok_kind  == a_token_kind::tok_eof)
+	if(curr_token.kind  == a_token_kind::tok_eof)
 		return left_operand;	
 		
-	while(tok_kind == a_token_kind::tok_mul || tok_kind == a_token_kind::tok_div)
+	while(curr_token.kind == a_token_kind::tok_mul || curr_token.kind == a_token_kind::tok_div)
 		{
-			curr_token_pos++;
 			
+			next_token();
 			right_operand = primary();
 			left_operand  = mk_node(tok_to_node(tok_kind),left_operand,right_operand,std::monostate{});
 		        
-			tok_kind = Tokens[curr_token_pos].kind;
-			if(tok_kind == a_token_kind::tok_eof)
+			if(curr_token.kind == a_token_kind::tok_eof)
 				break;
 		}
 	return left_operand;
@@ -97,11 +101,11 @@ a_ast_node* expr()
 	left_expr = term();
 	
 	/* if last token, return  */
-	while ( Tokens[curr_token_pos].kind != a_token_kind::tok_eof )
+	while ( curr_token.kind != a_token_kind::tok_eof )
 	{
 		
-	expr_kind = tok_to_node(Tokens[curr_token_pos].kind);
-	curr_token_pos++;
+	expr_kind = tok_to_node(curr_token.kind);
+	next_token();
 	
 	/* this will only return when it hits with lower precedence  with higher precedence already formed */
 	right_term = term();
