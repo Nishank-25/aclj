@@ -1,11 +1,11 @@
 #include "frontend/tree.h"
 #include <iostream>
-a_ast_node* mk_node(a_ast_node_kind op , a_ast_node* left , a_ast_node* right , a_ast_value value)
+an_ast_node* mk_node(an_ast_node_kind op , an_ast_node* left , an_ast_node* right , an_ast_value value)
 {
-	a_ast_node*  node;
+	an_ast_node*  node;
 
 	try{
-		node = (a_ast_node*) new(a_ast_node);
+		node = (an_ast_node*) new(an_ast_node);
 	}
 	catch(std::exception &e) {
 		std::cerr << e.what() << "\n";
@@ -19,11 +19,11 @@ a_ast_node* mk_node(a_ast_node_kind op , a_ast_node* left , a_ast_node* right , 
 	return node;
 }
 
-a_ast_node* mk_leaf_node(a_ast_node_kind op , a_ast_value value) {
+an_ast_node* mk_leaf_node(an_ast_node_kind op , an_ast_value value) {
 	return mk_node(op,nullptr,nullptr,value);
 }
 
-a_ast_node* mk_unary_node(a_ast_node_kind op, a_ast_node* left, a_ast_value value){
+an_ast_node* mk_unary_node(an_ast_node_kind op, an_ast_node* left, an_ast_value value){
 	return mk_node(op,left,nullptr,value);
 }
 

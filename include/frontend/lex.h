@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <variant>
-#include <string>
+#include <string_view>
 
 enum class a_token_kind {
         tok_plus,
@@ -11,17 +11,19 @@ enum class a_token_kind {
         tok_mul,
         tok_div,
         tok_int_literal,
-	tok_float_literal,
-	tok_print,
-	tok_semicolon,
-	tok_eof,
-	tok_unknown
+		tok_float_literal,
+		tok_print,
+		tok_int,
+		tok_ident,
+		tok_equals,
+		tok_semicolon,
+		tok_eof,
+		tok_unknown
 };
 
 using a_number         = std::variant<int,double>;
-using variable_values  = std::variant<std::monostate,a_number,std::string>;
-using a_token_value    = variable_values;
-using an_ident         = std::string;
+using a_token_value    = std::variant<std::monostate,a_number,std::string_view>;
+using an_ident         = std::string_view;
 
 struct a_token {
         a_token_kind     kind;

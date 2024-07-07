@@ -1,8 +1,15 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#define isprint_token(tok)  ( tok.kind == a_token_kind::tok_print )
-#define issemi_token(tok)   ( tok.kind == a_token_kind::tok_semicolon)
-#define iseof_token(tok)    ( tok.kind == a_token_kind::tok_eof)
+#include<util/helper.h>
+
+#define expect_print()  match(a_token_kind::tok_print);
+#define expect_semi()   match(a_token_kind::tok_semicolon);
+#define expect_eof()    match(a_token_kind::tok_eof);
+#define expect_int()    match(a_token_kind::tok_int);
+#define expect_ident()  match(a_token_kind::tok_ident);
+#define expect_equals() match(a_token_kind::tok_equals);
+
+using empty = std::monostate;
 
 #endif /* GLOBALS_H */

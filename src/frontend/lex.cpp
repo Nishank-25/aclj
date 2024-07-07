@@ -1,7 +1,9 @@
-#include "frontend/lex.h"
 #include <cctype>
 #include <string>
 #include <iostream>
+#include "frontend/lex.h"
+#include "common/globals.h"
+
 
 std::vector<char> source_code;
 std::size_t curr_source_pos = 0;
@@ -88,7 +90,7 @@ static a_number scan_number()
 static void scan_identifier( an_ident& id )
 {
 	char c = next();
-	char buf[6];
+	char buf[MAX_IDENT_LEN];
 	size_t i = 0;
 
 	// combination of alphabets, digits, and underscore
@@ -110,6 +112,34 @@ static void scan_identifier( an_ident& id )
 	id = std::string(buf);
 }
 
+// if its a keyword return the token
+static a_token keyword(const an_ident& id)
+{
+	a_token tok;
+	switch (id[0])
+	{
+		case 'i':
+				if (id == "int")
+				{
+					tok.kind = a_token_kind::tok_int;
+					tok.value = empty;
+					return tok;
+				}
+		case 'p':
+				if (id == "print")
+				{
+					tok.kind = a_token_kind::tok_print;
+					tok.value = empty;
+					return tok;
+				}
+	
+	default:
+				tok.kind = a_token_kind::tok_unknown;
+				tok.value = empty;
+				return tok;
+		
+	}
+}
 // for scanning the tokens
 
 bool scan(a_token *tok)
@@ -121,24 +151,27 @@ bool scan(a_token *tok)
 	{
 		case EOF :
 				tok->kind = a_token_kind::tok_eof;
-				tok->value = std::monostate{};
+				tok->value = empty;
 				return false;
 		case '+' :
 				tok->kind = a_token_kind::tok_plus;
-				tok->value = std::monostate{};
+				tok->value = empty;
 				break;
  		case '-' :
 				tok->kind = a_token_kind::tok_minus;
-				tok->value = std::monostate{};
+				tok->value = empty;
 				break;
 		case '*' :
 				tok->kind = a_token_kind::tok_mul;
-				tok->value = std::monostate{};
+				tok->value = empty;
 				break;
 		case '/' :
 				tok->kind = a_token_kind::tok_div;
-				tok->value = std::monostate{};
+				tok->value = empty;
 				break;
+		case '=' :	
+				tok->kind = a_token_kind::tok_equals;
+				tok->value = empty;
 		
 		case '0': case '1': case '2': case '3': case '4': 
 		case '5': case '6': case '7': case '8': case '9':
@@ -165,7 +198,7 @@ bool scan(a_token *tok)
 			}
 		case ';':
 				tok->kind = a_token_kind::tok_semicolon;
-				tok->value = std::monostate{};
+				tok->value = empty;
 				break;
 		default :
 			{
@@ -174,17 +207,12 @@ bool scan(a_token *tok)
 					an_ident id;
 					cache_char(c);
 					scan_identifier(id);
-					if( id == std::string{"print"}  )
+					*tok = keyword(id);	
+					if(tok->kind == a_token_kind::tok_unknown)
 					{
-						tok->kind  = a_token_kind::tok_print;
-						tok->value = std::monostate{}; 
-						break;
-					}
-					else
-					{
-						std::cerr<<"Unrecognized symbol: "<<id<<" \n Be patient I will add you favourite keywords\n";
-						exit(1);
-
+						// its a variable name(for now)
+						tok->kind = a_token_kind::tok_ident;
+						tok->value = id;
 					}
 				}
 				else

@@ -1,6 +1,7 @@
 #include <iostream>
 #include "frontend/lex.h"
 #include "frontend/tree.h"
+#include "frontend/expr.h"
 #include "common/globals.h"
 #include "codegen/gen.h"
 
@@ -11,44 +12,65 @@ statements:	statement
 		| statement statements
 		;
 		
-statement:	"print" expression ";"
+statement:	"print" statement ";"
+		|	 variable_declaration
+		|	 assignment_expression
 		;
+
+identifer:	under_or_alpha
+		|	identifier under_or_alpha
+		|	identifier digit
+
+under_or_alpha:	"_"
+		|	"[a-z]"
+		|	"[A-Z]"
+	
+digit:	"[0-9]"
 
  ***** Grammar End *****
  */
 
 
-extern a_ast_node* expr();
-extern a_ast_node* expr(int);
+void print_statement()
+{
+	a_token tok;
+	an_ast_node*  ast;
+	int reg;
+
+	expect_print();
+	ast = expr(0);
+	reg = gen_AST(ast);
+	gen_printint(reg);
+	gen_free_regs();
+	expect_semi();
+
+}
 
 void statements()
 {
-	a_token tok;
-	a_ast_node*  ast;
-	int reg;
-
-	while(1)
+	while(true)
 	{
-		if ( ! isprint_token(get_token()) )
+		switch (curr_token.kind)
 		{
-			std::cerr<<"Expression should start with \"print\"\n";
-			exit(1);
+			case a_token_kind::tok_print:
+				print_statement();
+			break;
+
+			case a_token_kind::tok_int:
+				variable_declaration();
+			break;
+
+			case a_token_kind::tok_ident:
+				assign_statement();
+			break;
+
+			case a_token_kind::tok_eof:
+				return;
+			break;
+
+			default:
+				std::cerr<<"Expected a statement\n";
+				exit(1);
 		}
-		next_token();	
-		ast = expr(0);
-		reg = gen_AST(ast);
-		gen_printint(reg);
-		gen_free_regs();
-		if ( ! issemi_token(get_token()) )
-		{
-			std::cerr<<"Statement should end with \";\"\n";
-			exit(1);
-		}
-		else
-		{
-			next_token();
-		}
-		if ( iseof_token(get_token()) )
-			return;
 	}
 }

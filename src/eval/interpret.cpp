@@ -61,7 +61,7 @@ a_number operator/(a_number left , a_number right)
                 return (std::get<double>(left) / static_cast<double>(std::get<int>(right)));
 }
 
-a_number interpret_ast(a_ast_node* ast)
+a_number interpret_ast(an_ast_node* ast)
 {
 	a_number leftval , rightval;
 
@@ -70,16 +70,16 @@ a_number interpret_ast(a_ast_node* ast)
 	
 	switch(ast->op)
 	{
-		case a_ast_node_kind::node_add:
+		case an_ast_node_kind::node_add:
 			return (leftval + rightval);
-		case a_ast_node_kind::node_sub:
+		case an_ast_node_kind::node_sub:
 			return (leftval - rightval);
-		case a_ast_node_kind::node_mul:
+		case an_ast_node_kind::node_mul:
 			return (leftval * rightval);
-		case a_ast_node_kind::node_div:
+		case an_ast_node_kind::node_div:
 			return (leftval / rightval);
-		case a_ast_node_kind::node_int_literal:
-		case a_ast_node_kind::node_float_literal:
+		case an_ast_node_kind::node_int_literal:
+		case an_ast_node_kind::node_float_literal:
 			return std::get<a_number>(ast->value);
 		default:
 			std::cerr<<"Unkown operator\n";

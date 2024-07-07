@@ -7,7 +7,7 @@
 
 /***** GLOBALS *****/ 
 
-extern a_number interpret_ast(a_ast_node*);
+extern a_number interpret_ast(an_ast_node*);
 extern void statements();
 
 std::ofstream asm_file{"out.s"};
@@ -54,6 +54,7 @@ int main(int argc, char const *argv[])
 	if(tok.kind == a_token_kind::tok_eof) { Tokens.push_back(tok); }	
 	
 	gen_prologue();
+	next_token();
 	statements();
 	gen_epilogue();
 	asm_file.close();

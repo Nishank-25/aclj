@@ -13,7 +13,7 @@ int  cgmul(int , int);
 int  cgdiv(int , int);
 
 
-int  gen_AST(a_ast_node* );
+int  gen_AST(an_ast_node*, int);
 void gen_prologue();
 void gen_epilogue();
 void gen_free_regs();

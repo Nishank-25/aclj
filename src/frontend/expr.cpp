@@ -4,8 +4,8 @@
 #include"frontend/lex.h"
 #include<iostream>
 
-a_ast_node_kind tok_to_node(a_token_kind kind);
-a_ast_node* primary();
+an_ast_node_kind tok_to_node(a_token_kind kind);
+an_ast_node* primary();
 extern const char *tok_str[];
 
 //Operator precedence for each token
@@ -24,28 +24,28 @@ int get_precedence(a_token_kind tok_kind)
 }
 
 // param precedence is previous tokens precedence
-a_ast_node* expr(int precedence)
+an_ast_node* expr(int precedence)
 {
-	a_ast_node *left, *right;
+	an_ast_node *left, *right;
+	a_token_kind tok_kind;
 
 	left = primary();
-	a_token_kind token_kind = get_token().kind;
-	if(token_kind == a_token_kind::tok_semicolon)
+	next_token();
+	if(curr_token.kind == a_token_kind::tok_semicolon)
 		return left;
 
-	while(get_precedence(token_kind) > precedence)
+	while(get_precedence(curr_token.kind) > precedence)
 	{
 		next_token();
 		
 		// bind to the operator with same precedence level as left
-		right = expr(precedence_tbl[(int)token_kind]);
+		right = expr(precedence_tbl[(int)curr_token.kind]);
 
 		// join it to left
-		left = mk_node(tok_to_node(token_kind),left,right,std::monostate{});
+		left = mk_node(tok_to_node(curr_token.kind),left,right,std::monostate{});
 		
-		// If  we hit a semicolon, return the  left node
-		token_kind = get_token().kind;
-		if(token_kind == a_token_kind::tok_semicolon)
+		// If we hit a semicolon, return the  left node
+		if(curr_token.kind == a_token_kind::tok_semicolon)
 			return left;
 
 	}

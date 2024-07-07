@@ -2,11 +2,14 @@
    1. Lexer
         - [X] 1. Scan arithmetic tokens(+,-,*,/)
         - [X] 2. Scan integral and floating point numbers
-        - [ ] 3. Scan statements
+        - [X] 3. Scan statements
+        - [ ] 4. Scan variables 	
+	
    2. Scanner
         - [X] 1. wrong precedence
         - [X] 2. correct precedence with changing grammar
         - [X] 3. correct precedence with Pratt parsing
+
    3. Codegen
          - [X] 1. match nodes with instructions(naive)
          - [ ] 2. floating point support

@@ -5,7 +5,15 @@
 int print[5];
 std::string input_file;
 
-const char *tok_str[] = { "+", "-" , "*" , "/" , "int literal" , "float literal", "print", "semicolon" ,"End of File", "unknown token"};
+const char *tok_str[] = { "+", "-" , "*" , "/" , "int literal" , "float literal", 
+						"print","int","identifier","=", "semicolon","End of File", 
+						"unknown token"};
+
+const char* get_token_name(a_token_kind kind)
+{
+	return tok_str[(int)kind];
+}
+
 void print_tokens()
 {
         a_token tok;
@@ -38,14 +46,14 @@ bool parent_node = true;
 std::string spaces(int num) { return std::string(num,' '); } 
 
 
-int print_ast(a_ast_node* ast)
+int print_ast(an_ast_node* ast)
 {
 	// last right child (base case)
 	if (ast->left  == nullptr || ast->right == nullptr) 
 	{
-		if(ast->op == a_ast_node_kind::node_int_literal)
+		if(ast->op == an_ast_node_kind::node_int_literal)
  		std::cout<<spaces(3)<<std::get<int>(std::get<a_number>(ast->value))<<"\n";
-		if(ast->op == a_ast_node_kind::node_float_literal)
+		if(ast->op == an_ast_node_kind::node_float_literal)
                 std::cout<<spaces(3)<<std::get<double>(std::get<a_number>(ast->value))<<"\n";
 		std::cout<<"\n";
 	       	return 0; 
@@ -54,9 +62,9 @@ int print_ast(a_ast_node* ast)
 
 	// print parent node or right child
  	int num_of_digits = 1;
-	if(ast->left->op == a_ast_node_kind::node_int_literal)
+	if(ast->left->op == an_ast_node_kind::node_int_literal)
 		num_of_digits = std::to_string(std::get<int>(std::get<a_number>((ast->left->value)))).size();
-	if(ast->left->op == a_ast_node_kind::node_float_literal)
+	if(ast->left->op == an_ast_node_kind::node_float_literal)
 	{
 		std::string num = std::to_string(std::get<double>(std::get<a_number>((ast->left->value))));
 		std::size_t size = num.size();
@@ -79,9 +87,9 @@ int print_ast(a_ast_node* ast)
 	
 	// print left child
 	std::cout<<std::setprecision(10);
-	if(ast->left->op == a_ast_node_kind::node_int_literal) 
+	if(ast->left->op == an_ast_node_kind::node_int_literal) 
 		std::cout<<spaces(left_spaces - num_of_digits + 1)<<std::get<int>(std::get<a_number>((ast->left->value)));
-	if(ast->left->op == a_ast_node_kind::node_float_literal)
+	if(ast->left->op == an_ast_node_kind::node_float_literal)
 		std::cout<<spaces(left_spaces - num_of_digits + 1)<<std::get<double>(std::get<a_number>((ast->left->value)));
 	left_spaces += 2;
 	
