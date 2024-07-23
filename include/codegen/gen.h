@@ -35,4 +35,5 @@ void gen_printint(int);
 void gen_globalsym(std::string);
 
 #define NOREG -1
+extern bool optim;
 #endif /* GEN_H */

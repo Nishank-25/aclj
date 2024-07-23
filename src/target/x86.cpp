@@ -163,6 +163,29 @@ int cg_compare_and_set(an_ast_node_kind op , int r1 , int r2)
 {
 	assert(is_comparison_node(op));
 
+	if(optim)
+	{
+		bool cmp;
+		std::string instruction = cmplist[(int)op - (int)an_ast_node_kind::node_eq_eq];
+		if ( instruction == "sete")  {cmp = (r1 == r2); }
+		if ( instruction == "setne") {cmp = (r1 != r2); }
+		if ( instruction == "setl")  {cmp = (r1 < r2);  }
+		if ( instruction == "setg")  {cmp = (r1 > r2);  }
+		if ( instruction == "setle") {cmp = (r1 <= r2); }
+		if ( instruction == "setge") {cmp = (r1 >= r2); }
+		
+		if ( cmp == true )
+		{
+			int reg = alloc_register();
+			asm_file<<"\tmov\t"<<"$1,"<<reglist[reg]<<"\n";
+			return reg;
+		}
+		else{
+			int reg = alloc_register();
+			asm_file<<"\txor\t"<<reglist[reg]<<","<<reglist[reg]<<"\n";
+			return reg;
+		}
+	}
 	asm_file<<"\tcmpq\t"<<reglist[r2]<<","<<reglist[r1]<<"\n";
 	asm_file<<"\t"<<cmplist[(int)op - (int)an_ast_node_kind::node_eq_eq]<<"\t"<<breglist[r2]<<"\n";
 	asm_file<<"\tmovzbq\t"<<breglist[r2]<<","<<reglist[r2]<<"\n";
@@ -191,7 +214,6 @@ void cg_label(int l) {
 void cg_jump(int l) {
 	asm_file<<"\tjmp\tL"<<l<<"\n";
 }
-
 
 void gen_prologue()        { cgprologue(); }
 void gen_epilogue()        { cgepilogue(); }

@@ -3,6 +3,55 @@
 #include "codegen/gen.h"
 #include <iostream>
 
+bool optim = false;
+/*
+int Gen_AST(an_ast_node*n)
+{
+	// single pass opt
+	int leftreg, rightreg;
+	if (n->left != nullptr)
+		leftreg = gen_AST(n->left , -1);
+	if (n->right != nullptr)
+		rightreg = gen_AST(n->right , leftreg);
+
+	switch (n->op) {
+		case an_ast_node_kind::node_add:
+			return 0;
+		case an_ast_node_kind::node_sub:
+			return 0;
+		case an_ast_node_kind::node_mul:
+			return 0;
+		case an_ast_node_kind::node_div:
+			return 0;
+		case an_ast_node_kind::node_int_literal:
+			return 0;
+		case an_ast_node_kind::node_ident:
+			return (cgload_sym( get_sym_name( std::get<a_symtable_index>( n->value))));
+		case an_ast_node_kind::node_lvalue:
+			return (cgstr_sym(reg,get_sym_name( std::get<a_symtable_index>( n->value))));
+		case an_ast_node_kind::node_assign:
+			return rightreg;
+		case an_ast_node_kind::node_eq_eq:
+		case an_ast_node_kind::node_neq:
+		case an_ast_node_kind::node_lt:
+		case an_ast_node_kind::node_gt:
+		case an_ast_node_kind::node_le:
+		case an_ast_node_kind::node_ge:
+		 	{
+				if ( optim )
+				{
+					n->left->should_gen = 0;
+					n->right->should_gen =0;
+					return (cgcomp_op(n->op , std::get<int>( std::get<a_number>(n->left->value)) , std::get<int>( std::get<a_number>(n->right->value) ) ) );
+				}
+			 return (cgcomp_op(n->op , leftreg , rightreg));
+			}
+		default:
+			std::cerr<< "Unknown AST operator\n ";
+			exit(1);
+	}
+}
+*/
 static int label(void) {
   static int id = 1;
   return (id++);
@@ -85,6 +134,10 @@ int gen_AST(an_ast_node *n , int reg , an_ast_node_kind parent_op)
 			return (cgdiv(leftreg,rightreg));
 		case an_ast_node_kind::node_int_literal:
 		  	{
+				if ( optim && n->should_gen == 0)
+				{
+					return NOREG;
+				}
 				return (cgload( std::get<int>( std::get<a_number>( n->value))));
 			}
 		case an_ast_node_kind::node_ident:
@@ -108,9 +161,13 @@ int gen_AST(an_ast_node *n , int reg , an_ast_node_kind parent_op)
 				{
 					return cg_compare_and_jump(n->op,leftreg,rightreg,reg);
 				}
-				else{
-					return (cg_compare_and_set(n->op , leftreg , rightreg));
+				if ( optim )
+				{
+					n->left->should_gen = 0;
+					n->right->should_gen =0;
+					return (cg_compare_and_set(n->op , std::get<int>( std::get<a_number>(n->left->value)) , std::get<int>( std::get<a_number>(n->right->value) ) ) );
 				}
+			 return (cg_compare_and_set(n->op , leftreg , rightreg));
 			}
 	}
 }

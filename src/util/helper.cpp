@@ -157,6 +157,9 @@ void scan_cmd_line(int argc , char const* argv[] )
 				case 'P':
 					scan_cmd_print(flag);
 					break;
+				case 'O':
+					optim = true;
+					break;
 				default :
 					std::cerr<<"Unrecognized flag\n";
 			}
