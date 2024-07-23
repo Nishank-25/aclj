@@ -1,43 +1,68 @@
+#include<string>
 #include<iostream>
+#include<vector>
 #include<frontend/symbol_tbl.h>
-#include "symbol_tbl.h"
 
-a_symtable_index find_symbol(const a_symbol& symbol)
+std::vector<a_symbol> global_symtable;
+size_t global_symtable_size = 0;
+
+a_symtable_index find_symbol(a_symbol& symbol)
 {
-    a_symbtable_index index = 0;
+    a_symtable_index index = 0;
     for(a_symbol sym : global_symtable)
         {
             if (sym.name == symbol.name)
+            {
+                symbol = sym;
                 return index;
+            }
             ++index;
         }
 
     return SYMBOL_NOT_FOUND;
 }
 
-static a_symbtable_index get_new_slot()
+a_symtable_index find_symbol(std::string name)
 {
-    return (global_symtable_size < MAX_ENTRIES) ? ++global_symtable_size : NO_EMPTY_SLOT;
+    a_symtable_index index = 0;
+    for(a_symbol sym : global_symtable)
+    {
+        if (sym.name == name)
+            return index;
+        ++index;
+    }
+    return SYMBOL_NOT_FOUND;
 }
 
-void update_symbol_state(const a_symbol sym)
+static a_symtable_index get_new_slot()
 {
-    a_symbtable_index index = find_symbol(sym);
+    return (global_symtable_size < MAX_ENTRIES) ? global_symtable_size++ : NO_EMPTY_SLOT;
+}
+
+a_symtable_index update_symbol_state(const a_symbol sym)
+{
+    a_symtable_index index = find_symbol(sym.name);
     global_symtable[index].state = sym.state;
     return index;
 }
-a_symbtable_index add_sym(const a_symbol sym)
+a_symtable_index add_sym(a_symbol sym)
 {
-    a_symbtable_index index = get_new_slot();
+    a_symtable_index index = get_new_slot();
     
     if ( index == -1){ std::cerr<< "Symbol table full!!!"; exit(1);}
-    global_symtable[index] = sym;
+    global_symtable.push_back(sym);
     return index;
 }
 
 a_symbol make_symbol(a_token tok)
 {
     a_symbol sym;
-    sym.name = tok.value;
-    sym.state = empty;
+    sym.name = std::get<an_ident>(tok.value);
+    sym.state = empty_state{};
+    return sym;
+}
+
+std::string get_sym_name (a_symtable_index idx)
+{
+    return global_symtable[idx].name;
 }

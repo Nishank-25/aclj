@@ -1,8 +1,6 @@
 # A Compiler Learning Journey.(Inspired by [acwj](https://github.com/DoctorWkt/acwj "a compiler writing journey"))
 Hey! Thanks to peek in here. Lets begin this journey together.
-For now we have a basic scanner and parser.It can interpret
-the arithmetic expressions.
-
+Checkout [progress](https://github.com/Nishank-25/aclj/blob/master/todo.md).
 
 # Build and default Test
 
@@ -16,3 +14,10 @@ cmake ./  && make // to build the compiler
 -Ptokens
 -Past-without-precedence
 ```
+
+# Enable optimisation Flags
+```c
+-O
+-Onobranch
+```
+Checkout [todo](https://github.com/Nishank-25/aclj/blob/master/todo.md) for optimisations.

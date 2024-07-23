@@ -4,11 +4,10 @@
 #include "frontend/tree.h"
 #include "util/helper.h"
 #include "codegen/gen.h"
-
+#include "frontend/statements.h"
 /***** GLOBALS *****/ 
 
 extern a_number interpret_ast(an_ast_node*);
-extern void statements();
 
 std::ofstream asm_file{"out.s"};
 
@@ -40,6 +39,7 @@ int main(int argc, char const *argv[])
 {
 //	init();
 	a_token tok;
+	an_ast_node* tree;
 	scan_cmd_line(argc,argv);
 	/* Todo: where should input_file come from. Hmm... util??  */
 	if(input_file.empty()) { std::cerr<<"Whom do I compile??\n"; exit(1);} 
@@ -54,8 +54,9 @@ int main(int argc, char const *argv[])
 	if(tok.kind == a_token_kind::tok_eof) { Tokens.push_back(tok); }	
 	
 	gen_prologue();
-	next_token();
-	statements();
+	get_token();
+	tree = compound_statement();
+	gen_AST(tree,NOREG,tree->op);
 	gen_epilogue();
 	asm_file.close();
 

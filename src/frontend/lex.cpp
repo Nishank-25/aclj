@@ -1,5 +1,5 @@
 #include <cctype>
-#include <string>
+#include <cstring>
 #include <iostream>
 #include "frontend/lex.h"
 #include "common/globals.h"
@@ -16,14 +16,10 @@ char cache;
 //
 a_token get_token()
 {
-	return Tokens[curr_token_pos];
+	curr_token = Tokens[curr_token_pos++];
+	return curr_token;
 }
 
-void next_token()
-{
-	++curr_token_pos;
-	curr_token = Tokens[curr_token_pos];
-}
 
 // for reading next character. read one at a time. will also cache
 static char next()
@@ -87,10 +83,10 @@ static a_number scan_number()
 // for now we only have "print" which is a keyword
 // print arithematic expression
 // ex : print 1 + 2
-static void scan_identifier( an_ident& id )
+static an_ident scan_identifier()
 {
 	char c = next();
-	char buf[MAX_IDENT_LEN];
+	char  buf[MAX_IDENT_LEN];
 	size_t i = 0;
 
 	// combination of alphabets, digits, and underscore
@@ -107,35 +103,48 @@ static void scan_identifier( an_ident& id )
 			c = next();
 		}
 	}
-	buf[++i] = '\0';	
 	cache_char(c);
-	id = std::string(buf);
+	return an_ident{buf,i};
 }
 
 // if its a keyword return the token
-static a_token keyword(const an_ident& id)
+static a_token keyword(an_ident id)
 {
+	char c = id[0];
 	a_token tok;
-	switch (id[0])
+	switch (c)
 	{
 		case 'i':
-				if (id == "int")
+				if (id[1] == 'f')
+				{
+					tok.kind = a_token_kind::tok_if;
+					tok.value = void_token{};
+					return tok;
+				}
+				else if (std::strcmp(id.data() ,"int") == 0)
 				{
 					tok.kind = a_token_kind::tok_int;
-					tok.value = empty;
+					tok.value = void_token{};
 					return tok;
 				}
 		case 'p':
-				if (id == "print")
+				if (std::strcmp(id.data() ,"print") == 0)
 				{
 					tok.kind = a_token_kind::tok_print;
-					tok.value = empty;
+					tok.value = void_token{};
+					return tok;
+				}
+		case 'e':
+				if(std::strcmp(id.data() , "else") == 0 )
+				{
+					tok.kind = a_token_kind::tok_else;
+					tok.value = void_token{};
 					return tok;
 				}
 	
-	default:
+		default:
 				tok.kind = a_token_kind::tok_unknown;
-				tok.value = empty;
+				tok.value = void_token{};
 				return tok;
 		
 	}
@@ -151,40 +160,88 @@ bool scan(a_token *tok)
 	{
 		case EOF :
 				tok->kind = a_token_kind::tok_eof;
-				tok->value = empty;
+				tok->value = void_token{};
 				return false;
 		case '+' :
 				tok->kind = a_token_kind::tok_plus;
-				tok->value = empty;
+				tok->value = void_token{};
 				break;
  		case '-' :
 				tok->kind = a_token_kind::tok_minus;
-				tok->value = empty;
+				tok->value = void_token{};
 				break;
 		case '*' :
 				tok->kind = a_token_kind::tok_mul;
-				tok->value = empty;
+				tok->value = void_token{};
 				break;
 		case '/' :
 				tok->kind = a_token_kind::tok_div;
-				tok->value = empty;
+				tok->value = void_token{};
 				break;
-		case '=' :	
-				tok->kind = a_token_kind::tok_equals;
-				tok->value = empty;
-		
+		case '}' :
+				tok->kind = a_token_kind::tok_rbrace;
+				tok->value = void_token{};
+				break;
+		case '{' :
+				tok->kind = a_token_kind::tok_lbrace;
+				tok->value = void_token{};
+				break;
+		case ')' :
+				tok->kind = a_token_kind::tok_rparen;
+				tok->value = void_token{};
+				break;
+		case '(' :
+				tok->kind = a_token_kind::tok_lparen;
+				tok->value = void_token{};
+				break;
+		case '=' :
+				if ((c = next()) == '=' )
+					tok->kind = a_token_kind::tok_eq_eq;
+				else {
+					tok->kind = a_token_kind::tok_eq;
+					cache_char(c);
+				}
+				tok->value = void_token{};
+				break;
+		case '<' :
+				if ((c = next()) == '=' )
+					tok->kind = a_token_kind::tok_le;
+				else { 
+					tok->kind = a_token_kind::tok_lt;
+					cache_char(c);
+				}
+				tok->value = void_token{};
+				break;
+		case '>' :
+				if ((c = next()) == '=')
+					tok->kind = a_token_kind::tok_ge;
+				else { 
+					tok->kind = a_token_kind::tok_gt;
+					cache_char(c);
+				}
+				tok->value = void_token{};
+				break;
+		case '!' :
+				if ((c = next()) == '=')
+				{
+					tok->kind = a_token_kind::tok_neq;
+					tok->value = void_token{};
+					break;
+				}
+				else if(is_whitespace(c)){
+					std::cerr<<"unary ! not supported yet\n";
+					exit(1);
+				}
+				else{
+					cache_char(c);
+					break;
+				}
 		case '0': case '1': case '2': case '3': case '4': 
 		case '5': case '6': case '7': case '8': case '9':
 			{
 				cache_char(c);
 				a_number num = scan_number();
 				tok->value = num;
-			        if ( !is_whitespace(next()) )
-				{
-					std::cerr<< "Not a number literal\n";
-					exit(1);
-				}
-				
 				if(std::holds_alternative<double>(num)) 
 				{ 
 					tok->kind = a_token_kind::tok_float_literal;
@@ -195,10 +252,11 @@ bool scan(a_token *tok)
 					tok->kind = a_token_kind::tok_int_literal;
 					break;
 				}
+				break;
 			}
 		case ';':
 				tok->kind = a_token_kind::tok_semicolon;
-				tok->value = empty;
+				tok->value = void_token{};
 				break;
 		default :
 			{
@@ -206,7 +264,7 @@ bool scan(a_token *tok)
 				{
 					an_ident id;
 					cache_char(c);
-					scan_identifier(id);
+					id = scan_identifier();
 					*tok = keyword(id);	
 					if(tok->kind == a_token_kind::tok_unknown)
 					{
@@ -221,6 +279,6 @@ bool scan(a_token *tok)
 					exit(1);
 				}
 			}
-	}	
+	}	 
 	return true;
 }

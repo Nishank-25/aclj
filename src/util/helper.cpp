@@ -1,17 +1,46 @@
 #include "util/helper.h"
+#include "frontend/lex.h"
+#include "codegen/gen.h"
 #include <iomanip>
 #include <iostream>
 
 int print[5];
 std::string input_file;
 
-const char *tok_str[] = { "+", "-" , "*" , "/" , "int literal" , "float literal", 
-						"print","int","identifier","=", "semicolon","End of File", 
-						"unknown token"};
-
+const char *tok_str(a_token_kind kind )
+{
+	switch(kind)
+	{
+		case a_token_kind::tok_plus 			: return "+";
+        case a_token_kind::tok_minus			: return "-";
+        case a_token_kind::tok_mul  			: return "*";
+        case a_token_kind::tok_div  			: return "/";
+        case a_token_kind::tok_int_literal		: return "integer literal";
+		case a_token_kind::tok_float_literal	: return "float literal";
+		case a_token_kind::tok_ident			: return "identifier";
+		case a_token_kind::tok_eq				: return "=";
+		case a_token_kind::tok_semicolon		: return ";";
+		case a_token_kind::tok_eof				: return "eof";
+		case a_token_kind::tok_eq_eq			: return "==";
+		case a_token_kind::tok_neq				: return "!=";
+		case a_token_kind::tok_lt				: return "<";
+		case a_token_kind::tok_gt				: return ">";
+		case a_token_kind::tok_le				: return "<=";
+		case a_token_kind::tok_ge				: return ">=";
+		case a_token_kind::tok_print			: return "print";
+		case a_token_kind::tok_int				: return "int";
+		case a_token_kind::tok_lbrace			: return "{";
+		case a_token_kind::tok_rbrace			: return "}";
+		case a_token_kind::tok_rparen			: return ")";
+		case a_token_kind::tok_lparen			: return "(";
+		case a_token_kind::tok_if				: return "if";
+		case a_token_kind::tok_else				: return "else";
+		default : return "unknown";
+	}
+}
 const char* get_token_name(a_token_kind kind)
 {
-	return tok_str[(int)kind];
+	return tok_str(kind);
 }
 
 void print_tokens()
@@ -19,7 +48,7 @@ void print_tokens()
         a_token tok;
 	for(auto tok : Tokens)
         {
-                std::cout<<"Token: "<<"{"<< tok_str[(int)tok.kind]<<"}";
+                std::cout<<"Token: "<<"{"<< tok_str(tok.kind)<<"}";
                 if ( tok.kind == a_token_kind::tok_int_literal)
                 {
 			std::cout<<", value : ";

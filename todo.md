@@ -3,7 +3,7 @@
         - [X] 1. Scan arithmetic tokens(+,-,*,/)
         - [X] 2. Scan integral and floating point numbers
         - [X] 3. Scan statements
-        - [ ] 4. Scan variables 	
+        - [X] 4. Scan variables 	
 	
    2. Scanner
         - [X] 1. wrong precedence
@@ -13,6 +13,7 @@
    3. Codegen
          - [X] 1. match nodes with instructions(naive)
          - [ ] 2. floating point support
+   
    4. Error Handling
        1. Lex error
           - [X] 1. error on wrong tokens
@@ -20,15 +21,21 @@
           - [X] 1. error on not following grammar
        3. Source/Location pointing
           - [ ] 1. line number support   
-   4. Utils
+   
+   5. Utils
        1. CMDLINE Options
           - [X] 1. Basic support for print flags
           - [X] 2. Error on incorrect flags and make sure you take correct input file
-          - [ ] 3. interpret or codegen(default)
-          - [ ] 4. -S and -o flags
+          - [ ] 3. -S and -o flags
       2. Helper Functions
           - [X] 1. Print tokens
           - [X] 2. Print ast(without precedence)
+   
+   6. Naive optimisations( separate branch, please ignore these names)
+      1. -O
+         - [X] 1. Interpret comparisons
+      2. -Onobranch
+         - [ ]  2. Single node if else
 
 2. add advance techniques
 

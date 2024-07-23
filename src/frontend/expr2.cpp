@@ -1,6 +1,8 @@
 #include "frontend/tree.h"
 #include "frontend/lex.h"
+#include "frontend/symbol_tbl.h"
 #include <iostream>
+#include <string>
 
 /*
 ***** Grammar START *****
@@ -24,23 +26,17 @@ a_number	a_tok_int_literal
 
 ***** Grammar END *****
 */
-extern const char *tok_str[];
+extern const char *tok_str(a_token_kind);
 
 an_ast_node_kind tok_to_node(a_token_kind kind)
 {
-	switch(kind)
+	if ( a_token_kind::tok_eof < kind && kind < a_token_kind::tok_int_literal )
 	{
-		case a_token_kind::tok_plus:
-			return an_ast_node_kind::node_add;
-		case a_token_kind::tok_minus:
-			return an_ast_node_kind::node_sub;
-		case a_token_kind::tok_mul:
-			return an_ast_node_kind::node_mul;
-		case a_token_kind::tok_div:
-			return an_ast_node_kind::node_div;
-		default:
-			std::cerr<<"Syntax error "<<tok_str[(int)kind] << " is not a binary operator\n";
-			exit(1);
+		return (an_ast_node_kind)kind;
+	}
+	else {
+		std::cerr<<"Syntax error "<<tok_str(kind) << " is not a binary operator\n";
+		exit(1);
 	}
 }
 
@@ -49,21 +45,36 @@ an_ast_node* primary()
 	an_ast_node* node;
 	a_token tok;
 	
-	tok = get_token();
+	tok = curr_token;
 	
 	switch(tok.kind)
 	{
 		case a_token_kind::tok_int_literal :
-			node = mk_leaf_node(an_ast_node_kind::node_int_literal, tok.value);
-			next_token();
+			node = mk_leaf_node(an_ast_node_kind::node_int_literal, std::get<a_number>(tok.value));
+			get_token();
 			return node;
 		case a_token_kind::tok_float_literal :
-			node = mk_leaf_node(an_ast_node_kind::node_float_literal,tok.value);
-			next_token();
+			node = mk_leaf_node(an_ast_node_kind::node_float_literal,std::get<a_number>(tok.value));
+			get_token();
 			return node;
-		
+
+		case a_token_kind::tok_ident :
+		 	a_symtable_index idx;
+			idx = find_symbol(std::get<an_ident>(tok.value));
+
+			if (idx == SYMBOL_NOT_FOUND)
+			{
+				std::cerr<<"unknown variable"<<std::get<an_ident>(tok.value)<<"\n";
+				exit(1);
+			}
+
+			node = mk_leaf_node(an_ast_node_kind::node_ident,idx);
+			get_token();
+			return node;
+			break;
+	
 		default:
-			std::cerr<<"Syntax error expecting a literal value\n";
+			std::cerr<<"Syntax error expecting a literal value or an identifier\n";
 			exit(1);
 	}	
 }
@@ -81,9 +92,9 @@ an_ast_node* term()
 	while(curr_token.kind == a_token_kind::tok_mul || curr_token.kind == a_token_kind::tok_div)
 		{
 			
-			next_token();
+			get_token();
 			right_operand = primary();
-			left_operand  = mk_node(tok_to_node(tok_kind),left_operand,right_operand,std::monostate{});
+			left_operand  = mk_node(tok_to_node(curr_token.kind),left_operand,right_operand,std::monostate{});
 		        
 			if(curr_token.kind == a_token_kind::tok_eof)
 				break;
@@ -105,7 +116,7 @@ an_ast_node* expr()
 	{
 		
 	expr_kind = tok_to_node(curr_token.kind);
-	next_token();
+	get_token();
 	
 	/* this will only return when it hits with lower precedence  with higher precedence already formed */
 	right_term = term();
