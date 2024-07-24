@@ -1,9 +1,14 @@
 1. program basic compiler([acwj](https://github.com/DoctorWkt/acwj/ "a compiler writing journey") inspired)
    1. Lexer
-        - [X] 1. Scan arithmetic tokens(+,-,*,/)
-        - [X] 2. Scan integral and floating point numbers
-        - [X] 3. Scan statements
-        - [X] 4. Scan variables 	
+       1. Others
+          - [X] 1. arithmetic tokens(+,-,*,/)
+          - [X] 2. integral and floating point numbers
+          - [X] 3. variables
+
+       2. Statements
+          - [X] 1. assignment
+          - [X] 2. ifelse
+          - [X] 3. while and dowhile
 	
    2. Scanner
         - [X] 1. wrong precedence

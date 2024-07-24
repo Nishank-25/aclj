@@ -18,8 +18,10 @@ enum class an_ast_node_kind{
 	node_semicolon,
 	node_print,
 	node_lvalue,
-	node_if,
 	node_glue,
+	node_if,
+	node_while,
+	node_do_while,
 	node_unknown
 };
 typedef std::monostate void_ast_type;
@@ -42,4 +44,5 @@ extern an_ast_node* mk_node(an_ast_node_kind, an_ast_node*, an_ast_node*, an_ast
 extern an_ast_node* mk_leaf_node(an_ast_node_kind , an_ast_value);
 extern an_ast_node* mk_unary_node(an_ast_node_kind , an_ast_node*, an_ast_value);
 extern bool 		is_comparison_node(an_ast_node_kind);
+extern bool 		is_jump_node(an_ast_node_kind);
 #endif /* TREE_H */

@@ -40,3 +40,9 @@ bool is_comparison_node(an_ast_node_kind kind)
 	if ( an_ast_node_kind::node_eq_eq <= kind && kind <= an_ast_node_kind::node_ge) return true;
 	else return false;
 }
+
+bool is_jump_node(an_ast_node_kind kind)
+{
+	if ( an_ast_node_kind::node_if <= kind && kind <= an_ast_node_kind::node_do_while ) return true;
+	else return false;
+}

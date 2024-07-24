@@ -21,6 +21,7 @@ statement :	"print" statement ";"
 		| variable_declaration
 		| assignment_statement
 		| if_statement
+		| while_statement
 		;
 assignment_statement: identifier "=" expression ";"
 
@@ -28,6 +29,10 @@ if_statement: if_head
       	| if_head 'else' compound_statement
 
 if_head: 'if' '(' true_false_expression ')' compound_statement  ;
+
+while_statement: 'while' '(' true_false_expression ')' compound_statement  ;
+
+do_while_statement : 'do' compound_statement 'while' '(' true_false_expression ')' ;
 
 identifer:	under_or_alpha
 		|	identifier under_or_alpha
@@ -117,6 +122,47 @@ an_ast_node* if_statement()
 	return (mk_node(an_ast_node_kind::node_if , cond_node, true_node, false_node, void_ast_type{}));
 }
 
+an_ast_node* while_statement()
+{
+	an_ast_node *cond_node, *while_body;
+
+	match(a_token_kind::tok_while);
+	expect_lparen();
+
+	cond_node = expr(0);
+
+	if (! is_comparison_node(cond_node->op))
+	{
+		std::cerr<<"a comparison operator expected in while\n";
+		exit(1);
+	}
+
+	expect_rparen();
+
+	while_body = compound_statement();
+
+	return(mk_node(an_ast_node_kind::node_while , cond_node , while_body, void_ast_type{}));
+}
+
+an_ast_node* do_while_statement()
+{
+	an_ast_node *cond_node, *do_body;
+
+	match(a_token_kind::tok_do);
+	
+	do_body = compound_statement();
+
+	match(a_token_kind::tok_while);
+
+	expect_lparen();
+	cond_node = expr(0);
+	expect_rparen();
+	expect_semi();
+
+	return(mk_node(an_ast_node_kind::node_do_while , cond_node , do_body , void_ast_type{}));
+
+}
+
 an_ast_node* statements()
 {
 	an_ast_node *tree , *left = nullptr;
@@ -140,6 +186,14 @@ an_ast_node* statements()
 
 			case a_token_kind::tok_if:
 				tree = if_statement();
+			break;
+
+			case a_token_kind::tok_while:
+				tree = while_statement();
+			break;
+
+			case a_token_kind::tok_do:
+				tree = do_while_statement();
 			break;
 
 			case a_token_kind::tok_rbrace:

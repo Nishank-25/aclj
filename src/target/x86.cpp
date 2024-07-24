@@ -158,26 +158,26 @@ void cgprintint(int r)
 	free_register(r);
 }
 
-static std::string cmplist[] = {"sete" , "setne", "setl" , "setg" , "setle" , "setge" };
+static std::string setlist[] = {"sete" , "setne", "setl" , "setg" , "setle" , "setge" };
 int cg_compare_and_set(an_ast_node_kind op , int r1 , int r2)
 {
 	assert(is_comparison_node(op));
 
 	asm_file<<"\tcmpq\t"<<reglist[r2]<<","<<reglist[r1]<<"\n";
-	asm_file<<"\t"<<cmplist[(int)op - (int)an_ast_node_kind::node_eq_eq]<<"\t"<<breglist[r2]<<"\n";
+	asm_file<<"\t"<<setlist[(int)op - (int)an_ast_node_kind::node_eq_eq]<<"\t"<<breglist[r2]<<"\n";
 	asm_file<<"\tmovzbq\t"<<breglist[r2]<<","<<reglist[r2]<<"\n";
 	free_register(r1);
 	return r2;
 }
 
-static std::string invcmplist[] = { "jne", "je", "jge", "jle", "jg", "jl" };
+static std::string jumplist[] = { "jne", "je", "jge", "jle", "jg", "jl" };
 
 // Compare two registers and jump if false.
 int cg_compare_and_jump(an_ast_node_kind op, int r1, int r2, int label) {
 	
 	assert(is_comparison_node(op));
 	asm_file<<"\tcmpq\t"<<reglist[r2]<<","<<reglist[r1]<<"\n";
-	asm_file<<"\t"<<invcmplist[(int)op - (int)an_ast_node_kind::node_eq_eq]<<"\tL"<<label<<"\n";
+	asm_file<<"\t"<<jumplist[(int)op - (int)an_ast_node_kind::node_eq_eq]<<"\tL"<<label<<"\n";
 	freeall_registers();
 	return (NOREG);
 }

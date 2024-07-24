@@ -8,7 +8,7 @@ static int label(void) {
   return (id++);
 }
 
-static int gen_IF(an_ast_node* ifnode)
+static int gen_if(an_ast_node* ifnode)
 {
 	int Lfalse, Lend;
 	// Generate two labels: one for the
@@ -18,7 +18,7 @@ static int gen_IF(an_ast_node* ifnode)
 	// the ending label!
 	Lfalse = label();
 	if (ifnode->right)
-    Lend = label();
+		Lend = label();
 
 	// Generate the condition code followed
 	// by a zero jump to the false label.
@@ -49,13 +49,58 @@ static int gen_IF(an_ast_node* ifnode)
 
 	return (NOREG);
 }
+static int gen_while(an_ast_node* while_node)
+{
+	int Lstart, Lend;
 
+	Lstart = label();
+	Lend = label();
+	
+	cg_label(Lstart);
+
+	gen_AST(while_node->left , Lend , while_node->op);
+	gen_free_regs();
+
+	gen_AST(while_node->right , Lstart , while_node->op);
+	gen_free_regs();
+
+	cg_jump(Lstart);
+	cg_label(Lend);
+
+	return (NOREG);	
+}
+
+static int gen_do_while(an_ast_node* do_while_node)
+{
+	int Lstart , Lend;
+
+	Lstart = label();
+	Lend = label();
+
+	cg_label(Lstart);
+
+	gen_AST(do_while_node->right , NOREG, do_while_node->op);
+	gen_free_regs();
+
+	gen_AST(do_while_node->left , Lend, do_while_node->op);
+	gen_free_regs();
+
+	cg_jump(Lstart);
+	cg_label(Lend);
+
+	return(NOREG);
+
+}
 int gen_AST(an_ast_node *n , int reg , an_ast_node_kind parent_op)
 {
 	switch (n->op)
 	{
 		case an_ast_node_kind::node_if:
-			return (gen_IF(n));
+			return (gen_if(n));
+		case an_ast_node_kind::node_while:
+			return (gen_while(n));
+		case an_ast_node_kind::node_do_while:
+			return (gen_do_while(n));
 		case an_ast_node_kind::node_glue:
 			{
 				gen_AST(n->left, NOREG , n->op);
@@ -104,7 +149,7 @@ int gen_AST(an_ast_node *n , int reg , an_ast_node_kind parent_op)
 		case an_ast_node_kind::node_le:
 		case an_ast_node_kind::node_ge:
 		 	{
-				if (parent_op == an_ast_node_kind::node_if)
+				if ( is_jump_node(parent_op))
 				{
 					return cg_compare_and_jump(n->op,leftreg,rightreg,reg);
 				}

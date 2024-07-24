@@ -141,6 +141,20 @@ static a_token keyword(an_ident id)
 					tok.value = void_token{};
 					return tok;
 				}
+		case 'w':
+				if(std::strcmp(id.data() , "while") == 0)
+				{
+					tok.kind = a_token_kind::tok_while;
+					tok.value = void_token{};
+					return tok;
+				}
+		case 'd':
+				if(id[1] == 'o')
+				{
+					tok.kind = a_token_kind::tok_do;
+					tok.value = void_token{};
+					return tok;
+				}
 	
 		default:
 				tok.kind = a_token_kind::tok_unknown;
