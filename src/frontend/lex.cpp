@@ -155,6 +155,13 @@ static a_token keyword(an_ident id)
 					tok.value = void_token{};
 					return tok;
 				}
+		case 'f':
+				if(std::strcmp(id.data() , "for") == 0)
+				{
+					tok.kind = a_token_kind::tok_for;
+					tok.value = void_token{};
+					return tok;
+				}
 	
 		default:
 				tok.kind = a_token_kind::tok_unknown;

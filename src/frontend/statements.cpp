@@ -62,7 +62,7 @@ an_ast_node* print_statement()
 	return ast;
 }
 
-an_ast_node* assign_statement()
+an_ast_node* assign_statement( bool for_counter)
 {
     a_token tok;
     a_symbol sym;
@@ -90,6 +90,11 @@ an_ast_node* assign_statement()
 
     node = mk_node(an_ast_node_kind::node_assign, left, right, 0);
 
+	if(for_counter) 
+	{
+		expect_rparen();
+		return node;
+	}
     expect_semi();
 	return node;
 }
@@ -162,7 +167,42 @@ an_ast_node* do_while_statement()
 	return(mk_node(an_ast_node_kind::node_do_while , cond_node , do_body , void_ast_type{}));
 
 }
+static an_ast_node* for_counter()
+{
+	an_ast_node* expr;
 
+	// will add increment as well later
+	if(curr_token.kind == a_token_kind::tok_ident)
+	{
+		expr = assign_statement(true);
+		return expr;
+	}
+	else 
+	{
+		std::cerr<<"Expecting assign statement for \"for\"";
+		exit(1);
+	}
+}
+an_ast_node* for_statement()
+{
+	an_ast_node *init_node, *cond_node, *counter, *body;
+
+	match(a_token_kind::tok_for);
+
+	expect_lparen();
+
+	init_node = assign_statement(false);
+	cond_node = expr(0);
+	expect_semi();
+	counter = for_counter();
+	body = compound_statement();
+
+	return(mk_node(an_ast_node_kind::node_glue , init_node, 
+															mk_node(an_ast_node_kind::node_while, cond_node , 
+																											mk_node(an_ast_node_kind::node_glue, body, counter,void_ast_type{} ), 						
+																											void_ast_type{}) ,
+															void_ast_type{}  ));
+}
 an_ast_node* statements()
 {
 	an_ast_node *tree , *left = nullptr;
@@ -181,7 +221,7 @@ an_ast_node* statements()
 			break;
 
 			case a_token_kind::tok_ident:
-				tree = assign_statement();
+				tree = assign_statement(false);
 			break;
 
 			case a_token_kind::tok_if:
@@ -194,6 +234,10 @@ an_ast_node* statements()
 
 			case a_token_kind::tok_do:
 				tree = do_while_statement();
+			break;
+
+			case a_token_kind::tok_for:
+				tree = for_statement();
 			break;
 
 			case a_token_kind::tok_rbrace:

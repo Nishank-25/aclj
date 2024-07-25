@@ -27,6 +27,7 @@ enum class a_token_kind {
 		tok_rparen,
 		tok_while,
 		tok_do,
+		tok_for,
 		tok_unknown
 };
 
