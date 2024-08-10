@@ -18,7 +18,10 @@ enum class a_token_kind {
 		tok_ident,
 		tok_semicolon,
 		tok_print,
+		tok_char,
 		tok_int,
+		tok_long,
+		tok_void,
 		tok_if,
 		tok_else,
 		tok_lbrace,
@@ -28,6 +31,7 @@ enum class a_token_kind {
 		tok_while,
 		tok_do,
 		tok_for,
+		tok_return,
 		tok_unknown
 };
 
@@ -45,7 +49,7 @@ struct a_token {
 
 extern bool scan(a_token*);
 extern  a_token  get_token();
-
+extern  a_token peek();
 extern std::vector<char> source_code;
 extern std::size_t curr_source_pos;
 extern std::vector<a_token> Tokens;

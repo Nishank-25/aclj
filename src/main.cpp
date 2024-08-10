@@ -4,7 +4,8 @@
 #include "frontend/tree.h"
 #include "util/helper.h"
 #include "codegen/gen.h"
-#include "frontend/statements.h"
+#include "frontend/decl.h"
+
 /***** GLOBALS *****/ 
 
 extern a_number interpret_ast(an_ast_node*);
@@ -55,9 +56,13 @@ int main(int argc, char const *argv[])
 	
 	gen_prologue();
 	get_token();
-	tree = compound_statement();
-	gen_AST(tree,NOREG,tree->op);
-	gen_epilogue();
+	while(1)
+	{
+		tree = function_declaration();
+		gen_AST(tree,NOREG,tree->op);
+		if (curr_token.kind == a_token_kind::tok_eof)
+			break;
+	}
 	asm_file.close();
 
 /*	// interpret ( understand the ast)

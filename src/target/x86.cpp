@@ -14,6 +14,7 @@ extern std::ofstream asm_file;
 static int freereg[4];
 static std::string reglist[4]= { "%r8", "%r9", "%r10", "%r11" };
 static std::string breglist[4]= {"%r8b", "%r9b", "%r10b", "%r11b"};
+static std::string dreglist[4]= {"%r8d", "%r9d", "%r10d", "%r11d"};
 
 // Set all registers as available
 static void freeall_registers(void)
@@ -67,19 +68,25 @@ void cgprologue()
 		"\tnop\n"
 		"\tleave\n"
 		"\tret\n"
-		"\n"
-		"\t.globl\tmain\n"
-		"\t.type\tmain, @function\n"
-		"main:\n"
-		"\tpushq\t%rbp\n"
-		"\tmovq	%rsp, %rbp\n";
+		"\n";
 }
-
-// Print out the assembly epilogue
-void cgepilogue()
+void cg_func_prologue(std::string name)
 {
 	asm_file<<
-		"\tmovl	$0, %eax\n"
+		"\t.text\n"
+		"\t.globl\t"
+		<<name<<"\n"
+		"\t.type\t"
+		<<name <<", @function\n"
+		<<name<<":\n \tpushq\t%rbp\n"
+		"\tmovq\t%rsp, %rbp\n";
+}
+
+// Print out the func epilogue
+void cg_func_epilogue(a_symtable_index idx)
+{
+	cg_label(idx);
+	asm_file<<
 		"\tpopq	%rbp\n"
 		"\tret\n";
 }
@@ -134,20 +141,54 @@ int cgdiv(int r1, int r2) {
 int cgload_sym(std::string sym_name)
 {
 	int reg = alloc_register();
+	switch(get_sym_type(sym_name))
+	{
+		case a_type_kind::Int:
+			asm_file<<"\tmovzbl\t"<<sym_name<<"(%rip),"<< dreglist[reg]<<"\n";
+		break;
 
-	asm_file<<"\tmovq\t"<<sym_name<<"(%rip),"<< reglist[reg]<<"\n";
+		case a_type_kind::Char:
+			asm_file<<"\tmovzbq\t"<<sym_name<<"(%rip),"<<breglist[reg]<<"\n";
+		break;
+
+		case a_type_kind::Long:
+			asm_file<<"\tmovzbq\t"<<sym_name<<"(%rip),"<<reglist[reg]<<"\n";
+		break;
+	
+		default:
+			std::cerr<<"bad type in cgload_sym\n";
+			exit(1);
+	}
 	return reg;
 }
 
 int cgstr_sym(int reg, std::string sym_name)
 {
-	asm_file<<"\tmovq\t"<<reglist[reg]<<","<<sym_name<<"(%rip)\n";
+	switch(get_sym_type(sym_name))
+	{
+		case a_type_kind::Int:
+			asm_file<<"\tmovl\t"<<dreglist[reg]<<","<<sym_name<<"(%rip)\n";
+		break;
+
+		case a_type_kind::Char:
+			asm_file<<"\tmovb\t"<<breglist[reg]<<","<<sym_name<<"(%rip)\n";
+		break;
+
+		case a_type_kind::Long:
+			asm_file<<"\tmovq\t"<<reglist[reg]<<","<<sym_name<<"(%rip)\n";
+		break;
+
+		default:
+			std::cerr<<"bad type in cgstr_sym\n";
+			exit(1);
+	}
 	return reg;
 }
 
 void cgglobal_sym(std::string sym_name)
 {
-	asm_file<<"\t.comm\t"<<sym_name<<",8,8\n";
+	 	int type_sz = type_size[(int)get_sym_type(sym_name) - (int)a_type_kind::none];
+		asm_file<<"\t.comm\t"<<sym_name<<","<<type_sz<<","<<type_sz<<"\n";
 }
 
 // Call printint() with the given register
@@ -192,9 +233,45 @@ void cg_jump(int l) {
 	asm_file<<"\tjmp\tL"<<l<<"\n";
 }
 
+int cg_widen(int r , a_type_kind oldtype , a_type_kind newtype)
+{
+	return r;
+}
 
+void cg_return(int reg , std::string name)
+{
+
+switch(get_sym_type(name))
+	{
+		case a_type_kind::Int:
+			asm_file<<"\tmovl\t"<<dreglist[reg]<<","<<"%eax\n";
+		break;
+
+		case a_type_kind::Char:
+			asm_file<<"\tmovb\t"<<breglist[reg]<<","<<"%eax\n";
+		break;
+
+		case a_type_kind::Long:
+			asm_file<<"\tmovq\t"<<reglist[reg]<<","<<"%rax\n";
+		break;
+
+		default:
+			std::cerr<<"bad type in cg_return\n";
+			exit(1);
+	}
+	cg_jump(find_symbol(name));
+}
+
+int cg_call(int reg , std::string name)
+{
+	int return_reg = alloc_register();
+	asm_file<<"\tmovq\t"<<reglist[reg]<<",%rdi\n";
+	asm_file<<"\tcall\t"<<name<<"\n";
+	asm_file<<"\tmovq\t"<<"%rax,"<<reglist[return_reg]<<"\n";
+	free_register(reg);
+	return return_reg;
+}
 void gen_prologue()        { cgprologue(); }
-void gen_epilogue()        { cgepilogue(); }
 void gen_free_regs()        { freeall_registers(); }
 void gen_printint(int reg) { cgprintint(reg); }
 void gen_globalsym(std::string name){cgglobal_sym(name);}

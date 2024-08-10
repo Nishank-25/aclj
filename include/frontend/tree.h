@@ -3,6 +3,7 @@
 
 #include "frontend/lex.h"
 #include "frontend/symbol_tbl.h"
+#include "frontend/types.h"
 #include <variant>
 
 // AST NODE KINDS
@@ -22,6 +23,10 @@ enum class an_ast_node_kind{
 	node_if,
 	node_while,
 	node_do_while,
+	node_func,
+	node_func_call,
+	node_widen,
+	node_return,
 	node_unknown
 };
 typedef std::monostate void_ast_type;
@@ -36,13 +41,14 @@ struct an_ast_node{
 	an_ast_node* right;  // Right child tree
 	an_ast_node* mid;	 // middle child tree
 	an_ast_value value;  // integer or float value or symtbl index
+	a_type_kind  type_kind;
 	bool should_gen = 1;
 };
 
-extern an_ast_node* mk_node(an_ast_node_kind, an_ast_node*, an_ast_node*, an_ast_value );
-extern an_ast_node* mk_node(an_ast_node_kind, an_ast_node*, an_ast_node*, an_ast_node*, an_ast_value);
-extern an_ast_node* mk_leaf_node(an_ast_node_kind , an_ast_value);
-extern an_ast_node* mk_unary_node(an_ast_node_kind , an_ast_node*, an_ast_value);
+extern an_ast_node* mk_node(an_ast_node_kind, an_ast_node*, an_ast_node*, an_ast_value, a_type_kind);
+extern an_ast_node* mk_node(an_ast_node_kind, an_ast_node*, an_ast_node*, an_ast_node*, an_ast_value, a_type_kind);
+extern an_ast_node* mk_leaf_node(an_ast_node_kind , an_ast_value , a_type_kind);
+extern an_ast_node* mk_unary_node(an_ast_node_kind , an_ast_node* , an_ast_value , a_type_kind);
 extern bool 		is_comparison_node(an_ast_node_kind);
 extern bool 		is_jump_node(an_ast_node_kind);
 #endif /* TREE_H */

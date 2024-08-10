@@ -109,6 +109,14 @@ int gen_AST(an_ast_node *n , int reg , an_ast_node_kind parent_op)
 				gen_free_regs();
 				return (NOREG);
 			}
+		case an_ast_node_kind::node_func:
+			{
+				cg_func_prologue(get_sym_name( std::get<a_symtable_index>( n->value)));
+				gen_AST(n->left,NOREG,n->op);
+				cg_func_epilogue(std::get<a_symtable_index>( n->value));
+				return NOREG;
+			}
+
 	}
 
 	int leftreg, rightreg;
@@ -139,9 +147,11 @@ int gen_AST(an_ast_node *n , int reg , an_ast_node_kind parent_op)
 		case an_ast_node_kind::node_assign:
 			return rightreg;
 		case an_ast_node_kind::node_print:
-			gen_printint(leftreg);
-			gen_free_regs();
-			return (NOREG);
+			{
+				gen_printint(leftreg);
+				gen_free_regs();
+				return (NOREG);
+			}
 		case an_ast_node_kind::node_eq_eq:
 		case an_ast_node_kind::node_neq:
 		case an_ast_node_kind::node_lt:
@@ -157,5 +167,14 @@ int gen_AST(an_ast_node *n , int reg , an_ast_node_kind parent_op)
 					return (cg_compare_and_set(n->op , leftreg , rightreg));
 				}
 			}
+		case an_ast_node_kind::node_widen:
+			return cg_widen(leftreg , n->left->type_kind, n->type_kind);
+		
+		case an_ast_node_kind::node_return:
+			cg_return(leftreg , get_sym_name( std::get<a_symtable_index>( n->value)));
+			return (NOREG);
+			
+		case an_ast_node_kind::node_func_call:
+			return cg_call(leftreg , get_sym_name( std::get<a_symtable_index>( n->value)));
 	}
 }

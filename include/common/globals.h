@@ -14,5 +14,7 @@ extern a_token match(a_token_kind);
 #define expect_rbrace() match(a_token_kind::tok_rbrace)
 #define expect_lparen() match(a_token_kind::tok_lparen)
 #define expect_rparen() match(a_token_kind::tok_rparen)
+#define expect_void()   match(a_token_kind::tok_void)
+#define expect_return() match(a_token_kind::tok_return)
 
 #endif /* GLOBALS_H */

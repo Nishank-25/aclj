@@ -4,13 +4,15 @@
           - [X] 1. arithmetic tokens(+,-,*,/)
           - [X] 2. integral and floating point numbers
           - [X] 3. variables
+          - [X] 4. Basic function decl and call
 
        2. Statements
           - [X] 1. assignment
           - [X] 2. ifelse
           - [X] 3. while and dowhile
+          - [X] 4. for
 	
-   2. Scanner
+   2. Parser
         - [X] 1. wrong precedence
         - [X] 2. correct precedence with changing grammar
         - [X] 3. correct precedence with Pratt parsing

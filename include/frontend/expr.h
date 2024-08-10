@@ -5,6 +5,6 @@
 
 extern an_ast_node* expr();
 extern an_ast_node* expr(int);
-
+extern an_ast_node* func_call();
 
 #endif

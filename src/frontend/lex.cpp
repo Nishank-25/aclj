@@ -20,7 +20,10 @@ a_token get_token()
 	return curr_token;
 }
 
-
+a_token peek()
+{
+	return Tokens[curr_token_pos];
+}
 // for reading next character. read one at a time. will also cache
 static char next()
 {
@@ -162,7 +165,34 @@ static a_token keyword(an_ident id)
 					tok.value = void_token{};
 					return tok;
 				}
-	
+		case 'v':
+				if(std::strcmp(id.data() , "void") == 0)
+				{
+					tok.kind = a_token_kind::tok_void;
+					tok.value = void_token{};
+					return tok;
+				}
+		case 'l':
+				if(std::strcmp(id.data() , "long") == 0)
+				{
+					tok.kind = a_token_kind::tok_long;
+					tok.value = void_token{};
+					return tok;
+				}
+		case 'c':
+				if(std::strcmp(id.data() , "char") == 0)
+				{
+					tok.kind = a_token_kind::tok_char;
+					tok.value = void_token{};
+					return tok;
+				}
+		case 'r':
+				if(std::strcmp(id.data(), "return") == 0)
+				{
+					tok.kind = a_token_kind::tok_return;
+					tok.value = void_token{};
+					return tok;
+				}
 		default:
 				tok.kind = a_token_kind::tok_unknown;
 				tok.value = void_token{};

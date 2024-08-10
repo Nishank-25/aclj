@@ -2,6 +2,5 @@
 #define DECL_H
 
 extern void variable_declaration();
-extern void assign_expression();
-
+extern an_ast_node* function_declaration();
 #endif
